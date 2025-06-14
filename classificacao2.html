@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroPrecision - Previsão Inteligente de Fertilizantes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c8a4f;
+            --secondary-color: #f8f9fa;
+            --accent-color: #ffc107;
+            --dark-color: #343a40;
+            --light-color: #ffffff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4f0e8 100%);
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark-color);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .container {
+            background-color: var(--light-color);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 700;
+            position: relative;
+            padding-bottom: 15px;
+            font-size: 2.2rem;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .intro-text {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            color: #5a5a5a;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            transition: var(--transition);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(44, 138, 79, 0.25);
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, var(--primary-color), #3aa769);
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-radius: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 8px rgba(44, 138, 79, 0.3);
+        }
+
+        .btn-predict:hover {
+            background: linear-gradient(135deg, #237a43, var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(44, 138, 79, 0.4);
+        }
+
+        .btn-predict:active {
+            transform: translateY(0);
+        }
+
+        #result-container {
+            margin-top: 35px;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            background-color: var(--light-color);
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        #result-container h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .prob-bar-container {
+            background-color: #f2f2f2;
+            border-radius: 50px;
+            overflow: hidden;
+            margin: 20px auto;
+            height: 30px;
+            max-width: 500px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .prob-bar-no, .prob-bar-yes {
+            height: 100%;
+            float: left;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            line-height: 30px;
+            transition: width 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            white-space: nowrap;
+            overflow: hidden;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        .prob-bar-no {
+            background: linear-gradient(135deg, var(--danger-color), #e04a59);
+        }
+
+        .prob-bar-yes {
+            background: linear-gradient(135deg, var(--primary-color), #3aa769);
+        }
+
+        .probability-text {
+            display: flex;
+            justify-content: space-between;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .probability-text p {
+            margin: 0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .recommendation-box {
+            background-color: rgba(44, 138, 79, 0.08);
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Estilos personalizados para o switch */
+        .form-switch .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-switch .form-check-input {
+            width: 3.5em;
+            height: 2em;
+            cursor: pointer;
+            margin-left: 0;
+            margin-right: 10px;
+        }
+
+        .form-switch .form-check-label {
+            font-size: 1.1em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .form-range {
+            padding: 0;
+            height: 10px;
+        }
+
+        .form-range::-webkit-slider-thumb {
+            background: var(--primary-color);
+            width: 20px;
+            height: 20px;
+        }
+
+        .form-range::-moz-range-thumb {
+            background: var(--primary-color);
+            width: 20px;
+            height: 20px;
+        }
+
+        .form-range::-ms-thumb {
+            background: var(--primary-color);
+            width: 20px;
+            height: 20px;
+        }
+
+        .input-value-display {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-left: 5px;
+        }
+
+        .feature-icon {
+            background-color: rgba(44, 138, 79, 0.1);
+            color: var(--primary-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animated {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-label {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-leaf me-2"></i>AgroPrecision</h1>
+        <p class="intro-text">
+            Utilize nossa ferramenta inteligente para determinar a necessidade de fertilizante na sua lavoura,
+            com base em dados climáticos, de solo e características da cultura. Obtenha recomendações precisas
+            para maximizar sua produtividade de forma sustentável.
+        </p>
+
+        <form id="fertilizante-form">
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label for="Regiao" class="form-label"><i class="fas fa-globe-americas"></i>Região:</label>
+                    <select class="form-select" id="Regiao" name="Regiao" required>
+                        <option value="">Selecione a Região</option>
+                        <option value="West">Oeste</option>
+                        <option value="South">Sul</option>
+                        <option value="North">Norte</option>
+                        <option value="East">Este</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="Tipo_Solo" class="form-label"><i class="fas fa-mountain"></i>Tipo de Solo:</label>
+                    <select class="form-select" id="Tipo_Solo" name="Tipo_Solo" required>
+                        <option value="">Selecione o Tipo de Solo</option>
+                        <option value="Sandy">Arenoso</option>
+                        <option value="Clay">Argiloso</option>
+                        <option value="Loam">Franco</option>
+                        <option value="Silt">Siltoso</option>
+                        <option value="Peaty">Turfoso</option>
+                        <option value="Chalky">Calcário</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label for="Cultura" class="form-label"><i class="fas fa-seedling"></i>Cultura:</label>
+                    <select class="form-select" id="Cultura" name="Cultura" required>
+                        <option value="">Selecione a Cultura</option>
+                        <option value="Cotton">Algodão</option>
+                        <option value="Rice">Arroz</option>
+                        <option value="Wheat">Trigo</option>
+                        <option value="Maize">Milho</option>
+                        <option value="Soybean">Soja</option>
+                        <option value="Barley">Cevada</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="Precipitacao_mm" class="form-label"><i class="fas fa-cloud-rain"></i>Precipitação (mm):</label>
+                    <input type="range" class="form-range mb-3" min="0" max="2000" step="0.1" id="PrecipitacaoRange" value="100.0">
+                    <div class="d-flex align-items-center">
+                        <span class="input-value-display" id="PrecipitacaoValue">100.0</span>
+                        <span class="ms-auto text-muted">0-2000mm</span>
+                    </div>
+                    <input type="number" step="0.01" class="form-control mt-2" id="Precipitacao_mm" name="Precipitation_mm" required value="100.0">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label for="Temperatura_Celsius" class="form-label"><i class="fas fa-temperature-high"></i>Temperatura (°C):</label>
+                    <input type="range" class="form-range mb-3" min="-10" max="50" step="0.1" id="TemperaturaRange" value="25.0">
+                    <div class="d-flex align-items-center">
+                        <span class="input-value-display" id="TemperaturaValue">25.0</span>
+                        <span class="ms-auto text-muted">-10°C a 50°C</span>
+                    </div>
+                    <input type="number" step="0.01" class="form-control mt-2" id="Temperatura_Celsius" name="Temperature_Celsius" required value="25.0">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label d-block"><i class="fas fa-tint"></i>Irrigação:</label>
+                    <div class="form-check form-switch mt-2 d-flex align-items-center">
+                        <input class="form-check-input" type="checkbox" id="IrrigacaoToggle" name="Irrigation" value="0">
+                        <label class="form-check-label" for="IrrigacaoToggle">Sistema de irrigação disponível?</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label for="Condicao_Climatica" class="form-label"><i class="fas fa-cloud-sun"></i>Condição Climática:</label>
+                    <select class="form-select" id="Condicao_Climatica" name="Climatic_Condition" required>
+                        <option value="">Selecione a Condição</option>
+                        <option value="Cloudy">Nublado</option>
+                        <option value="Rainy">Chuvoso</option>
+                        <option value="Sunny">Ensolarado</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="Dias_para_Colheita" class="form-label"><i class="fas fa-calendar-alt"></i>Dias para Colheita:</label>
+                    <input type="number" class="form-control" id="Dias_para_Colheita" name="Days_to_Harvest" required value="120">
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label for="Rendimento_Toneladas_Por_Hectare" class="form-label"><i class="fas fa-chart-line"></i>Rendimento (toneladas por hectare):</label>
+                    <input type="number" step="0.01" class="form-control" id="Rendimento_Toneladas_Por_Hectare" name="Rendimento_Toneladas_Por_Hectare" required value="5.0">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-predict" id="predictBtn">
+                <i class="fas fa-calculator"></i> Analisar Necessidade de Fertilizante
+            </button>
+        </form>
+
+        <div id="result-container" class="mt-4 animated" style="display: none;">
+            <h3><i class="fas fa-chart-pie"></i>Resultado da Análise</h3>
+            <p id="fertilizante-output" class="fs-4 fw-bold mb-4"></p>
+
+            <div class="prob-bar-container">
+                <div id="prob-bar-no" class="prob-bar-no" style="width: 0%;">0%</div>
+                <div id="prob-bar-yes" class="prob-bar-yes" style="width: 0%;">0%</div>
+            </div>
+
+            <div class="probability-text">
+                <p><i class="fas fa-times-circle text-danger"></i> Probabilidade de Não Ter Usado: <span id="prob-nao">0</span>%</p>
+                <p><i class="fas fa-check-circle text-success"></i> Probabilidade de Ter Usado: <span id="prob-sim">0</span>%</p>
+            </div>
+
+            <div class="recommendation-box" id="recommendation-text"></div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-outline-primary"><i class="fas fa-home me-2"></i>Voltar à Página Inicial</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2023 AgroPrecision - Ferramenta de Análise Agrícola | <a href="#">Termos de Uso</a> | <a href="#">Política de Privacidade</a></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sincronizar Precipitação
+            const precipitacaoRange = document.getElementById('PrecipitacaoRange');
+            const precipitacaoInput = document.getElementById('Precipitacao_mm');
+            const precipitacaoValue = document.getElementById('PrecipitacaoValue');
+
+            precipitacaoRange.addEventListener('input', function() {
+                precipitacaoInput.value = this.value;
+                precipitacaoValue.textContent = this.value;
+            });
+
+            precipitacaoInput.addEventListener('input', function() {
+                if (this.value > 2000) this.value = 2000;
+                if (this.value < 0) this.value = 0;
+                precipitacaoRange.value = this.value;
+                precipitacaoValue.textContent = this.value;
+            });
+
+            // Sincronizar Temperatura
+            const temperaturaRange = document.getElementById('TemperaturaRange');
+            const temperaturaInput = document.getElementById('Temperatura_Celsius');
+            const temperaturaValue = document.getElementById('TemperaturaValue');
+
+            temperaturaRange.addEventListener('input', function() {
+                temperaturaInput.value = this.value;
+                temperaturaValue.textContent = this.value;
+            });
+
+            temperaturaInput.addEventListener('input', function() {
+                if (this.value > 50) this.value = 50;
+                if (this.value < -10) this.value = -10;
+                temperaturaRange.value = this.value;
+                temperaturaValue.textContent = this.value;
+            });
+
+            // Toggle de Irrigação
+            const irrigacaoToggle = document.getElementById('IrrigacaoToggle');
+            const irrigacaoLabel = document.querySelector('label[for="IrrigacaoToggle"]');
+
+            irrigacaoToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    this.value = '1';
+                } else {
+                    this.value = '0';
+                }
+            });
+
+            // Form submission
+            document.getElementById('fertilizante-form').addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                const predictBtn = document.getElementById('predictBtn');
+                const originalBtnHtml = predictBtn.innerHTML;
+
+                // Mostrar spinner e desativar botão
+                predictBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Analisando...';
+                predictBtn.disabled = true;
+
+                const form = event.target;
+                const formData = new FormData(form);
+                const data = {};
+
+                data['Regiao'] = formData.get('Regiao');
+                data['Tipo_Solo'] = formData.get('Tipo_Solo');
+                data['Cultura'] = formData.get('Cultura');
+                data['Precipitacao_mm'] = parseFloat(formData.get('Precipitation_mm'));
+                data['Temperatura_Celsius'] = parseFloat(formData.get('Temperature_Celsius'));
+                data['Irrigacao'] = parseInt(irrigacaoToggle.checked ? 1 : 0);
+                data['Condicao_Climatica'] = formData.get('Climatic_Condition');
+                data['Dias_para_Colheita'] = parseInt(formData.get('Days_to_Harvest'));
+                data['Rendimento_Toneladas_Por_Hectare'] = parseFloat(formData.get('Rendimento_Toneladas_Por_Hectare'));
+
+                // Resetar resultados anteriores
+                const resultContainer = document.getElementById('result-container');
+                resultContainer.style.display = 'none';
+
+                document.getElementById('fertilizante-output').textContent = 'Analisando dados...';
+                document.getElementById('prob-nao').textContent = '0';
+                document.getElementById('prob-sim').textContent = '0';
+                document.getElementById('prob-bar-no').style.width = '0%';
+                document.getElementById('prob-bar-yes').style.width = '0%';
+                document.getElementById('prob-bar-no').textContent = '0%';
+                document.getElementById('prob-bar-yes').textContent = '0%';
+                document.getElementById('recommendation-text').textContent = '';
+
+                try {
+                    const response = await fetch('/predict_fertilizante', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        const prediction = result.fertilizante_predicao;
+                        const probNao = (result.probabilidade_nao * 100).toFixed(2);
+                        const probSim = (result.probabilidade_sim * 100).toFixed(2);
+                        const probSimFloat = result.probabilidade_sim;
+
+                        let frase = '';
+
+                        if (probSimFloat >= 0.75) {
+                            frase = 'Foi aplicado fertilizante';
+                        } else if (probSimFloat <= 0.25) {
+                            frase = 'Não foi aplicado fertilizante';
+                        } else if (probSimFloat > 0.25 && probSimFloat < 0.5) {
+                            frase = 'Forte indicação de ausência de fertilização';
+                        } else if (probSimFloat >= 0.5 && probSimFloat < 0.75) {
+                            frase = 'Forte indicação de aplicação de fertilizante';
+                        } else {
+                            frase = 'Resultado indefinido';
+                        }
+
+                        document.getElementById('fertilizante-output').textContent = frase;
+
+                        document.getElementById('prob-nao').textContent = probNao;
+                        document.getElementById('prob-sim').textContent = probSim;
+
+                        // Animar barras de probabilidade
+                        setTimeout(() => {
+                            document.getElementById('prob-bar-no').style.width = `${probNao}%`;
+                            document.getElementById('prob-bar-no').textContent = `${parseFloat(probNao).toFixed(0)}%`;
+                            document.getElementById('prob-bar-yes').style.width = `${probSim}%`;
+                            document.getElementById('prob-bar-yes').textContent = `${parseFloat(probSim).toFixed(0)}%`;
+                        }, 100);
+
+                        // Adicionar recomendação baseada na previsão
+                        let recommendationText = '';
+                        if (prediction === 1) {
+                            recommendationText = `
+                                <strong><i class="fas fa-check-circle text-success me-2"></i>Recomendação:</strong> A aplicação de fertilizante é indicada para estas condições.<br><br>
+                                <strong><i class="fas fa-lightbulb text-warning me-2"></i>Sugestão:</strong> Considere realizar uma análise de solo complementar para determinar a formulação ideal de nutrientes.
+                                Aplique o fertilizante em condições climáticas favoráveis para melhor absorção.
+                            `;
+                            document.getElementById('fertilizante-output').style.color = 'var(--primary-color)';
+                        } else {
+                            recommendationText = `
+                                <strong><i class="fas fa-check-circle text-success me-2"></i>Recomendação:</strong> A aplicação de fertilizante não é necessária no momento.<br><br>
+                                <strong><i class="fas fa-lightbulb text-warning me-2"></i>Sugestão:</strong> Monitorize regularmente a saúde da cultura e considere outras práticas de manuseamento,
+                                como controlo de irrigação e proteção contra pragas. Realize nova avaliação em 15-20 dias.
+                            `;
+                            document.getElementById('fertilizante-output').style.color = 'var(--danger-color)';
+                        }
+                        document.getElementById('recommendation-text').innerHTML = recommendationText;
+
+                        // Mostrar resultado com animação
+                        resultContainer.style.display = 'block';
+                        resultContainer.classList.add('animated');
+
+                    } else {
+                        document.getElementById('fertilizante-output').textContent = `Erro: ${result.erro || 'Ocorreu um erro na análise.'}`;
+                        document.getElementById('fertilizante-output').style.color = 'var(--danger-color)';
+                        resultContainer.style.display = 'block';
+                        resultContainer.classList.add('animated');
+                    }
+                } catch (error) {
+                    console.error('Erro ao enviar requisição:', error);
+                    document.getElementById('fertilizante-output').textContent = 'Erro ao conectar com o servidor.';
+                    document.getElementById('fertilizante-output').style.color = 'var(--danger-color)';
+                    resultContainer.style.display = 'block';
+                    resultContainer.classList.add('animated');
+                } finally {
+                    // Restaurar botão
+                    predictBtn.innerHTML = originalBtnHtml;
+                    predictBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

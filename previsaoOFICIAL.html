@@ -1,0 +1,3280 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroVision Pro | Sistema Inteligente de Gestão Agrícola</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Poppins:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css">
+    <style>
+        :root {
+            --primary: #27ae60;
+            --primary-dark: #219653;
+            --secondary: #f39c12;
+            --tertiary: #3498db;
+            --quaternary: #9b59b6;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --background: #f9fbf7;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --text-light: #95a5a6;
+            --text-dark: #34495e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--dark);
+            line-height: 1.6;
+            background-image: radial-gradient(circle at 10% 20%, rgba(162, 217, 181, 0.05) 0%, rgba(233, 247, 237, 0.05) 90%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header Styling */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(52, 152, 219, 0.1));
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .logo-icon {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-right: 1.2rem;
+            animation: pulse 2s infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background-color: rgba(39, 174, 96, 0.1);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            letter-spacing: 1px;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-top: 0.8rem;
+            position: relative;
+            display: inline-block;
+            max-width: 700px;
+            padding: 0 1.5rem;
+            font-weight: 400;
+        }
+
+        .tagline::after {
+            content: '';
+            position: absolute;
+            width: 40%;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            bottom: -10px;
+            left: 30%;
+            border-radius: 3px;
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Styling */
+        .card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 2.2rem;
+            margin-bottom: 2.5rem;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            padding-bottom: 0.8rem;
+        }
+
+        .card-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+
+        .card-title i {
+            margin-right: 1rem;
+            color: var(--primary);
+            font-size: 1.6rem;
+        }
+
+        /* Form Styling */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group label i {
+            margin-right: 0.8rem;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            font-size: 1.05rem;
+            border: 2px solid #e0e6e9;
+            border-radius: 10px;
+            transition: var(--transition);
+            background-color: #f8faf9;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.15);
+            background-color: white;
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1.2rem center;
+            background-size: 1.2em;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .checkbox-group input {
+            width: 20px;
+            height: 20px;
+            margin-right: 1rem;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: 400;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .checkbox-group:hover label {
+            color: var(--primary);
+        }
+
+        /* Button Styling */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            box-shadow: 0 5px 20px rgba(39, 174, 96, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.35);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+
+        .btn:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        .btn i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--tertiary), #2980b9);
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.25);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #2980b9, var(--tertiary));
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.35);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #f39c12);
+            box-shadow: 0 5px 20px rgba(241, 196, 15, 0.25);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #f39c12, var(--warning));
+            box-shadow: 0 8px 25px rgba(241, 196, 15, 0.35);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #c0392b);
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.25);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c0392b, var(--danger));
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.35);
+        }
+
+        .btn-quaternary {
+            background: linear-gradient(135deg, var(--quaternary), #8e44ad);
+            box-shadow: 0 5px 20px rgba(155, 89, 182, 0.25);
+        }
+
+        .btn-quaternary:hover {
+            background: linear-gradient(135deg, #8e44ad, var(--quaternary));
+            box-shadow: 0 8px 25px rgba(155, 89, 182, 0.35);
+        }
+
+        /* Results Styling */
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f8fff9, #f1f9f4);
+            border-left: 6px solid var(--primary);
+            padding: 2rem;
+            border-radius: 12px;
+            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            font-size: 1.3rem;
+        }
+
+        .result-title i {
+            color: var(--primary);
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 1rem 0;
+            text-shadow: 0 2px 5px rgba(39, 174, 96, 0.1);
+        }
+
+        .result-details {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        /* Chart Styling */
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-top: 1.5rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        /* History Styling */
+        .history-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .history-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .history-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            align-items: center;
+        }
+
+        .history-crop {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .history-date {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            background: #f5f5f5;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .history-yield {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin: 0.5rem 0;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .card {
+                padding: 1.8rem;
+            }
+
+            .logo-text {
+                font-size: 2rem;
+            }
+
+            .result-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Floating Elements */
+        .floating-leaf {
+            position: absolute;
+            opacity: 0.1;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .leaf-1 {
+            top: 10%;
+            left: 5%;
+            font-size: 10rem;
+            color: var(--primary);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .leaf-2 {
+            bottom: 15%;
+            right: 5%;
+            font-size: 8rem;
+            color: var(--secondary);
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .leaf-3 {
+            top: 50%;
+            left: 20%;
+            font-size: 6rem;
+            color: var(--tertiary);
+            animation: float 12s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            position: relative;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transition: var(--transition);
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab:hover::after {
+            width: 100%;
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            width: 100%;
+        }
+
+        .tab i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Recommendation Box */
+        .recommendation-box {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-left: 4px solid var(--success);
+            margin-top: 2rem;
+            font-weight: bold;
+            color: var(--text-dark);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Soil Health Indicator */
+        .soil-health {
+            display: flex;
+            align-items: center;
+            margin-top: 2rem;
+            padding: 1.2rem;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.03);
+            transition: var(--transition);
+        }
+
+        .soil-health:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .soil-health-icon {
+            font-size: 1.8rem;
+            margin-right: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .soil-health-content h4 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .soil-health-content p {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 0;
+        }
+
+        /* Weather Widget */
+        .weather-widget {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.2);
+            transition: var(--transition);
+        }
+
+        .weather-widget:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(52, 152, 219, 0.3);
+        }
+
+        .weather-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .weather-icon {
+            font-size: 3rem;
+            margin-right: 1.5rem;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.1));
+        }
+
+        .weather-temp {
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .weather-details {
+            text-align: right;
+        }
+
+        .weather-location {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .weather-desc {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Crop Rotation Suggestion */
+        .rotation-suggestion {
+            background-color: #fff8e1;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--warning);
+            margin-top: 2rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .rotation-suggestion h4 {
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+        .rotation-suggestion h4 i {
+            color: var(--warning);
+            margin-right: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .rotation-suggestion p {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: var(--dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 8px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+            font-weight: normal;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .alert:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .alert i {
+            margin-right: 1.2rem;
+            font-size: 1.5rem;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            font-size: 1.05rem;
+        }
+
+        .alert-message {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--dark);
+        }
+
+        .alert-warning {
+            background-color: rgba(241, 196, 15, 0.1);
+            border-left: 4px solid var(--warning);
+            color: var(--dark);
+        }
+
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--dark);
+        }
+
+        .alert-info {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--tertiary);
+            color: var(--dark);
+        }
+
+        /* Data Card */
+        .data-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.8rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .data-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            color: white;
+            font-size: 1.8rem;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .data-card-content h3 {
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin-bottom: 0.3rem;
+            font-weight: 700;
+        }
+
+        .data-card-content p {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 0;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 100%;
+            margin: 2rem auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 3px;
+            background-color: #e0e0e0;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1.5px;
+        }
+
+        .timeline-item {
+            padding: 15px 50px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            top: 20px;
+            z-index: 1;
+            box-shadow: 0 0 0 5px rgba(39, 174, 96, 0.1);
+        }
+
+        .left {
+            left: 0;
+        }
+
+        .right {
+            left: 50%;
+        }
+
+        .left::after {
+            right: -12px;
+        }
+
+        .right::after {
+            left: -12px;
+        }
+
+        .timeline-content {
+            padding: 25px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-content h5 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .timeline-content .timeline-date {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+        }
+
+        .timeline-content p {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+
+        /* Responsive timeline */
+        @media screen and (max-width: 800px) {
+            .timeline::after {
+                left: 31px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 80px;
+                padding-right: 30px;
+            }
+
+            .timeline-item::after {
+                left: 21px;
+            }
+
+            .right {
+                left: 0%;
+            }
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 400px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-width: 250px;
+        }
+
+        .map-overlay h4 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .map-overlay p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0;
+        }
+
+        /* Calendar */
+        .calendar {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .calendar-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.2rem;
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .calendar-nav button {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            cursor: pointer;
+            padding:0.5rem;
+            transition: var(--transition);
+        }
+    .calendar-nav button:hover {
+        color: var(--primary);
+    }
+
+    .calendar-month {
+        margin: 0 1rem;
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.5rem;
+    }
+
+    .calendar-weekday {
+        text-align: center;
+        font-weight: 500;
+        color: var(--text-light);
+        font-size: 0.9rem;
+        padding: 0.5rem 0;
+    }
+
+    .calendar-day {
+        text-align: center;
+        padding: 0.8rem 0;
+        border-radius: 8px;
+        transition: var(--transition);
+        position: relative;
+    }
+
+    .calendar-day:hover {
+        background-color: rgba(39, 174, 96, 0.1);
+    }
+
+    .calendar-day.today {
+        background-color: var(--primary);
+        color: white;
+        font-weight: 600;
+    }
+
+    .calendar-day.event::after {
+        content: '';
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 5px;
+        height: 5px;
+        background-color: var(--secondary);
+        border-radius: 50%;
+    }
+
+    /* Task List */
+    .task-list {
+        margin-top: 2rem;
+    }
+
+    .task-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: var(--transition);
+    }
+
+    .task-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-checkbox {
+        margin-right: 1rem;
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary);
+        cursor: pointer;
+    }
+
+    .task-content {
+        flex: 1;
+    }
+
+    .task-title {
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .task-desc {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        margin-bottom: 0;
+    }
+
+    .task-date {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin-left: 1rem;
+        white-space: nowrap;
+    }
+
+    /* Resource Library */
+    .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .resource-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: var(--transition);
+    }
+
+    .resource-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .resource-image {
+        height: 150px;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .resource-content {
+        padding: 1.5rem;
+    }
+
+    .resource-title {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .resource-desc {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .resource-type {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        background-color: rgba(39, 174, 96, 0.1);
+        color: var(--primary);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    /* Expert Connect */
+    .expert-list {
+        margin-top: 2rem;
+    }
+
+    .expert-card {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: var(--transition);
+    }
+
+    .expert-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .expert-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-size: cover;
+        background-position: center;
+        margin-right: 1.5rem;
+        border: 3px solid var(--primary);
+    }
+
+    .expert-info {
+        flex: 1;
+    }
+
+    .expert-name {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .expert-specialty {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+    }
+
+    .expert-rating {
+        color: var(--warning);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .expert-bio {
+        font-size: 0.85rem;
+        color: var(--text-dark);
+        margin-bottom: 0;
+        line-height: 1.5;
+    }
+
+    /* Market Prices */
+    .price-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 2rem;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .price-table th {
+        background-color: var(--primary);
+        color: white;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .price-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        color: var(--text-dark);
+    }
+
+    .price-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .price-table tr:hover td {
+        background-color: rgba(39, 174, 96, 0.05);
+    }
+
+    .price-change {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .price-up {
+        background-color: rgba(46, 204, 113, 0.1);
+        color: var(--success);
+    }
+
+    .price-down {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: var(--danger);
+    }
+
+    /* Notification Center */
+    .notification-center {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 350px;
+        width: 100%;
+    }
+
+    /* Floating Action Button */
+    .fab {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 10px 30px rgba(39, 174, 96, 0.3);
+        cursor: pointer;
+        z-index: 99;
+        transition: var(--transition);
+    }
+
+    .fab:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 15px 35px rgba(39, 174, 96, 0.4);
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+        display: flex;
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+
+    .modal.active .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 1.3rem;
+        margin: 0;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-light);
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .modal-close:hover {
+        color: var(--danger);
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+        }
+
+        .tagline {
+            font-size: 1rem;
+        }
+
+        .card {
+            padding: 1.5rem;
+        }
+
+        .result-value {
+            font-size: 2rem;
+        }
+
+        .fab {
+            width: 50px;
+            height: 50px;
+            font-size: 1.3rem;
+            bottom: 20px;
+            right: 20px;
+        }
+    }
+</style>
+</head> <body> <div class="floating-leaf"> <i class="fas fa-leaf leaf-1"></i> <i class="fas fa-seedling leaf-2"></i> <i class="fas fa-tint leaf-3"></i> </div>
+<!-- Notification Center -->
+<div class="notification-center" id="notification-center"></div>
+
+<!-- Floating Action Button -->
+<div class="fab" id="fab">
+    <i class="fas fa-plus"></i>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Ação Rápida</h3>
+            <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="quick-action"><i class="fas fa-bolt"></i> Selecione uma ação</label>
+                <select id="quick-action" class="form-control">
+                    <option value="">Escolha uma opção rápida</option>
+                    <option value="new-prediction">Nova Previsão</option>
+                    <option value="view-history">Ver Histórico</option>
+                    <option value="add-task">Adicionar Tarefa</option>
+                    <option value="contact-expert">Falar com Especialista</option>
+                </select>
+            </div>
+            <button class="btn" style="width: 100%; margin-top: 1.5rem;">
+                <i class="fas fa-play"></i> Executar Ação
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-leaf logo-icon"></i>
+            <span class="logo-text">AgroVision Pro</span>
+        </div>
+        <h2 class="tagline">Sistema Inteligente de Gestão Agrícola com Previsões e Análises em Tempo Real</h2>
+    </header>
+
+    <!-- Weather Widget -->
+    <div class="weather-widget" id="weather-widget">
+        <div class="weather-info">
+            <i class="fas fa-sun weather-icon"></i>
+            <div class="weather-temp">24°C</div>
+        </div>
+        <div class="weather-details">
+            <div class="weather-location">Região Norte</div>
+            <div class="weather-desc">Ensolarado, Umidade 65%</div>
+        </div>
+    </div>
+
+    <!-- Alert Banner -->
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="alert-content">
+            <div class="alert-title">Alerta Meteorológico</div>
+            <div class="alert-message">Previsão de chuva intensa para os próximos 3 dias na sua região. Considere ajustar seu cronograma de irrigação.</div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+        <div class="tab" data-tab="forecast"><i class="fas fa-calculator"></i> Previsões</div>
+        <div class="tab" data-tab="history"><i class="fas fa-history"></i> Histórico</div>
+        <div class="tab" data-tab="analytics"><i class="fas fa-chart-bar"></i> Análises</div>
+        <div class="tab" data-tab="resources"><i class="fas fa-book"></i> Biblioteca</div>
+        <div class="tab" data-tab="experts"><i class="fas fa-user-tie"></i> Especialistas</div>
+        <div class="tab" data-tab="market"><i class="fas fa-chart-line"></i> Mercado</div>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div class="tab-content active" id="dashboard-tab">
+        <div class="dashboard">
+            <div class="card">
+                <h3 class="card-title"><i class="fas fa-tachometer-alt"></i> Visão Geral</h3>
+
+                <div class="form-grid">
+                    <div class="data-card">
+                        <div class="data-card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="data-card-content">
+                            <h3 id="avg-yield">0.00</h3>
+                            <p>Rendimento Médio (Ton/ha)</p>
+                        </div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-card-icon" style="background: linear-gradient(135deg, var(--secondary), #e67e22);">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="data-card-content">
+                            <h3 id="best-crop">-</h3>
+                            <p>Melhor Cultura</p>
+                        </div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-card-icon" style="background: linear-gradient(135deg, var(--tertiary), #2980b9);">
+                            <i class="fas fa-cloud-rain"></i>
+                        </div>
+                        <div class="data-card-content">
+                            <h3 id="avg-rain">0.0</h3>
+                            <p>Precipitação Média (mm)</p>
+                        </div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-card-icon" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div class="data-card-content">
+                            <h3 id="avg-temp">0.0</h3>
+                            <p>Temperatura Média (°C)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="overviewChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Calendário Agrícola</h3>
+
+                <div class="calendar">
+                    <div class="calendar-header">
+                        <div class="calendar-title">Junho 2023</div>
+                        <div class="calendar-nav">
+                            <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                            <div class="calendar-month">Junho</div>
+                            <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="calendar-weekday">Dom</div>
+                        <div class="calendar-weekday">Seg</div>
+                        <div class="calendar-weekday">Ter</div>
+                        <div class="calendar-weekday">Qua</div>
+                        <div class="calendar-weekday">Qui</div>
+                        <div class="calendar-weekday">Sex</div>
+                        <div class="calendar-weekday">Sáb</div>
+
+                        <!-- Dias do calendário serão preenchidos via JavaScript -->
+                        <div id="calendar-days" style="grid-column: span 7;"></div>
+                    </div>
+                </div>
+
+                <div class="task-list">
+                    <h4 style="margin-bottom: 1.5rem; color: var(--text-dark);"><i class="fas fa-tasks"></i> Tarefas do Dia</h4>
+
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-content">
+                            <div class="task-title">Aplicar fertilizante nitrogenado</div>
+                            <div class="task-desc">Área Norte - 2kg por hectare</div>
+                        </div>
+                        <div class="task-date">Hoje, 9:00</div>
+                    </div>
+
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-content">
+                            <div class="task-title">Monitorar umidade do solo</div>
+                            <div class="task-desc">Verificar sensores nas áreas 3 e 4</div>
+                        </div>
+                        <div class="task-date">Hoje, 14:00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forecast Tab -->
+    <div class="tab-content" id="forecast-tab">
+        <div class="dashboard">
+            <div class="card">
+                <h3 class="card-title"><i class="fas fa-seedling"></i> Dados da Plantação</h3>
+
+                <form id="form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="regiao"><i class="fas fa-map-marked-alt"></i> Região</label>
+                            <select id="regiao" class="form-control" required>
+                                <option value="">Selecione uma região</option>
+                                <option value="West">Oeste</option>
+                                <option value="South">Sul</option>
+                                <option value="North">Norte</option>
+                                <option value="East">Este</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tipo_solo"><i class="fas fa-mountain"></i> Tipo de Solo</label>
+                            <select id="tipo_solo" class="form-control" required>
+                                <option value="">Selecione o tipo de solo</option>
+                                <option value="Sandy">Arenoso</option>
+                                <option value="Clay">Argiloso</option>
+                                <option value="Loam">Franco</option>
+                                <option value="Silt">Siltoso</option>
+                                <option value="Peaty">Turfa</option>
+                                <option value="Chalky">Calcário</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cultura"><i class="fas fa-tractor"></i> Cultura</label>
+                            <select id="cultura" class="form-control" required>
+                                <option value="">Selecione a cultura</option>
+                                <option value="Cotton">Algodão</option>
+                                <option value="Rice">Arroz</option>
+                                <option value="Barley">Cevada</option>
+                                <option value="Soybean">Soja</option>
+                                <option value="Wheat">Trigo</option>
+                                <option value="Maize">Milho</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="precipitacao"><i class="fas fa-cloud-rain"></i> Precipitação (mm)</label>
+                            <input type="number" step="0.1" id="precipitacao" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="temperatura"><i class="fas fa-temperature-high"></i> Temperatura (°C)</label>
+                            <input type="number" step="0.1" id="temperatura" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="condicao_climatica"><i class="fas fa-cloud-sun"></i> Condição Climática</label>
+                            <select id="condicao_climatica" class="form-control" required>
+                                <option value="">Selecione a condição</option>
+                                <option value="Cloudy">Nublado</option>
+                                <option value="Rainy">Chuvoso</option>
+                                <option value="Sunny">Ensolarado</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dias_colheita"><i class="fas fa-calendar-day"></i> Dias para Colheita</label>
+                            <input type="number" id="dias_colheita" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="fertilizante">
+                                <label for="fertilizante">Uso de Fertilizante</label>
+                            </div>
+
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="irrigacao">
+                                <label for="irrigacao">Sistema de Irrigação</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%;"><i class="fas fa-calculator"></i> Calcular Previsão</button>
+                </form>
+
+                <!-- Soil Health Indicator -->
+                <div class="soil-health">
+                    <i class="fas fa-vial soil-health-icon"></i>
+                    <div class="soil-health-content">
+                        <h4>Saúde do Solo</h4>
+                        <p>Preencha os dados para obter uma análise detalhada da saúde do seu solo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-container">
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-chart-line"></i> Resultados</h3>
+                    <div id="resultado" class="result-card" style="display: none;">
+                        <div class="result-header">
+                            <h4 class="result-title"><i class="fas fa-chart-pie"></i> Previsão de Rendimento</h4>
+                            <span class="history-date" id="prediction-date"></span>
+                        </div>
+                        <div class="result-value" id="result-value">0.00 Ton/ha</div>
+                        <div class="result-details" id="result-details"></div>
+
+                        <div class="chart-container">
+                            <canvas id="yieldChart"></canvas>
+                        </div>
+
+                        <!-- Yield Comparison -->
+                        <div class="data-card" id="yield-comparison" style="display: none;">
+                            <div class="data-card-icon">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="data-card-content">
+                                <h3 id="comparison-value">+12%</h3>
+                                <p>Acima da média regional para esta cultura</p>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn btn-secondary" id="export-pdf"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+                            <button class="btn" id="save-prediction"><i class="fas fa-save"></i> Salvar Previsão</button>
+                            <button class="btn btn-warning" id="share-report" style="display: none;"><i class="fas fa-share-alt"></i> Compartilhar</button>
+                        </div>
+                    </div>
+
+                    <div id="empty-state" style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-seedling" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 1rem;"></i>
+                        <h4 style="color: #7f8c8d; margin-bottom: 0.5rem;">Nenhuma previsão calculada</h4>
+                        <p style="color: #bdc3c7;">Preencha o formulário e clique em "Calcular Previsão" para ver os resultados</p>
+                    </div>
+
+                    <!-- Enhanced Recommendations Section -->
+                    <div id="recommendation-output" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: none;">
+                        <h4 style="color: var(--text-dark); margin-bottom: 1.5rem;"><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Recomendações Inteligentes</h4>
+
+                        <div class="alert alert-success" id="rec-fertilizante">
+                            <i class="fas fa-check-circle"></i>
+                            <div class="alert-content">
+                                <div class="alert-title">Fertilizante</div>
+                                <div class="alert-message">Recomendado para aumentar o rendimento em até 15%.</div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning" id="rec-irrigacao">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div class="alert-content">
+                                <div class="alert-title">Irrigação</div>
+                                <div class="alert-message">Necessária apenas em períodos de seca prolongada.</div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info" id="rec-solo">
+                            <i class="fas fa-info-circle"></i>
+                            <div class="alert-content">
+                                <div class="alert-title">Tipo de Solo</div>
+                                <div class="alert-message">Franco é o ideal para esta cultura.</div>
+                            </div>
+                        </div>
+
+                        <!-- Crop Rotation Suggestion -->
+                        <div class="rotation-suggestion" id="crop-rotation-suggestion">
+                            <h4><i class="fas fa-sync-alt"></i> Sugestão de Rotação de Culturas</h4>
+                            <p>Após a colheita, considere plantar <strong>feijão</strong> para melhorar a saúde do solo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Tab -->
+    <div class="tab-content" id="history-tab">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-history"></i> Histórico de Previsões</h3>
+            <div class="history-list" id="history-list">
+                <!-- Histórico será preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div class="tab-content" id="analytics-tab">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-chart-bar"></i> Análise de Tendências</h3>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-map-marked-alt"></i> Mapa de Produtividade</h3>
+            <div class="map-container" id="productivity-map">
+                <!-- Mapa será renderizado via Leaflet -->
+            </div>
+            <div class="map-overlay">
+                <h4>Legenda de Produtividade</h4>
+                <p>Verde: Alta produtividade<br>Amarelo: Média produtividade<br>Vermelho: Baixa produtividade</p>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-tachometer-alt"></i> Métricas de Desempenho</h3>
+            <div class="form-grid">
+                <div class="data-card">
+                    <div class="data-card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="data-card-content">
+                        <h3 id="avg-yield">0.00</h3>
+                        <p>Rendimento Médio (Ton/ha)</p>
+                    </div>
+                </div>
+                <div class="data-card">
+                    <div class="data-card-icon" style="background: linear-gradient(135deg, var(--secondary), #e67e22);">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="data-card-content">
+                        <h3 id="best-crop">-</h3>
+                        <p>Melhor Cultura</p>
+                    </div>
+                </div>
+                <div class="data-card">
+                    <div class="data-card-icon" style="background: linear-gradient(135deg, var(--tertiary), #2980b9);">
+                        <i class="fas fa-cloud-rain"></i>
+                    </div>
+                    <div class="data-card-content">
+                        <h3 id="avg-rain">0.0</h3>
+                        <p>Precipitação Média (mm)</p>
+                    </div>
+                </div>
+                <div class="data-card">
+                    <div class="data-card-icon" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                    <div class="data-card-content">
+                        <h3 id="avg-temp">0.0</h3>
+                        <p>Temperatura Média (°C)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resources Tab -->
+    <div class="tab-content" id="resources-tab">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-book"></i> Biblioteca de Recursos</h3>
+
+            <div class="resource-grid">
+                <div class="resource-card">
+                    <div class="resource-image" style="background-image: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');"></div>
+                    <div class="resource-content">
+                        <h4 class="resource-title">Guia de Cultivo de Soja</h4>
+                        <p class="resource-desc">Técnicas avançadas para maximizar a produtividade da soja em diferentes tipos de solo.</p>
+                        <span class="resource-type">Guia Prático</span>
+                    </div>
+                </div>
+
+                <div class="resource-card">
+                    <div class="resource-image" style="background-image: url('https://images.unsplash.com/photo-1518977676601-b53f82aba655?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');"></div>
+                    <div class="resource-content">
+                        <h4 class="resource-title">Manejo Integrado de Pragas</h4>
+                        <p class="resource-desc">Estratégias sustentáveis para controle de pragas sem prejudicar o meio ambiente.</p>
+                        <span class="resource-type">Artigo Científico</span>
+                    </div>
+                </div>
+
+                <div class="resource-card">
+                    <div class="resource-image" style="background-image: url('https://images.unsplash.com/photo-1586771107445-d3ca888129ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');"></div>
+                    <div class="resource-content">
+                        <h4 class="resource-title">Técnicas de Irrigação Eficiente</h4>
+                        <p class="resource-desc">Como reduzir o consumo de água mantendo a produtividade das culturas.</p>
+                        <span class="resource-type">Vídeo Tutorial</span>
+                    </div>
+                </div>
+
+                <div class="resource-card">
+                    <div class="resource-image" style="background-image: url('https://images.unsplash.com/photo-1530036854750-304d56b6a2c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');"></div>
+                    <div class="resource-content">
+                        <h4 class="resource-title">Análise de Solo Avançada</h4>
+                        <p class="resource-desc">Interpretando os resultados de análise de solo para melhor fertilização.</p>
+                        <span class="resource-type">E-book</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Experts Tab -->
+    <div class="tab-content" id="experts-tab">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-user-tie"></i> Conecte-se com Especialistas</h3>
+
+            <div class="expert-list">
+                <div class="expert-card">
+                    <div class="expert-avatar" style="background-image: url('https://randomuser.me/api/portraits/men/32.jpg');"></div>
+                    <div class="expert-info">
+                        <h4 class="expert-name">Dr. Carlos Mendes</h4>
+                        <div class="expert-specialty">Especialista em Solos e Fertilização</div>
+                        <div class="expert-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            4.7                            </div>
+                            <p class="expert-bio">PhD em Agronomia com 15 anos de experiência em manejo de solos e nutrição de plantas. Especializado em cultivos de soja e milho.</p>
+                            <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-top: 0.5rem;">
+                                <i class="fas fa-comment"></i> Consultar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="expert-card">
+                        <div class="expert-avatar" style="background-image: url('https://randomuser.me/api/portraits/women/44.jpg');"></div>
+                        <div class="expert-info">
+                            <h4 class="expert-name">Dra. Ana Beatriz Silva</h4>
+                            <div class="expert-specialty">Especialista em Irrigação e Climatologia</div>
+                            <div class="expert-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                5.0
+                            </div>
+                            <p class="expert-bio">Engenheira Agrônoma com mestrado em Recursos Hídricos. Desenvolveu sistemas de irrigação para pequenos e grandes produtores.</p>
+                            <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-top: 0.5rem;">
+                                <i class="fas fa-comment"></i> Consultar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="expert-card">
+                        <div class="expert-avatar" style="background-image: url('https://randomuser.me/api/portraits/men/67.jpg');"></div>
+                        <div class="expert-info">
+                            <h4 class="expert-name">Prof. Marcos Oliveira</h4>
+                            <div class="expert-specialty">Especialista em Agricultura de Precisão</div>
+                            <div class="expert-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                4.9
+                            </div>
+                            <p class="expert-bio">Pioneiro na aplicação de drones e sensores para monitoramento agrícola no Brasil. Professor universitário e consultor.</p>
+                            <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-top: 0.5rem;">
+                                <i class="fas fa-comment"></i> Consultar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Tab -->
+        <div class="tab-content" id="market-tab">
+            <div class="card">
+                <h3 class="card-title"><i class="fas fa-chart-line"></i> Mercado Agrícola</h3>
+
+                <div class="chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+
+                <h4 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--text-dark);"><i class="fas fa-table"></i> Preços de Commodities</h4>
+
+                <table class="price-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Preço Atual (R$/sc)</th>
+                            <th>Variação (24h)</th>
+                            <th>Tendência</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Soja</td>
+                            <td>185,50</td>
+                            <td>+2,30</td>
+                            <td><span class="price-change price-up">+1,25%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Milho</td>
+                            <td>89,75</td>
+                            <td>-0,45</td>
+                            <td><span class="price-change price-down">-0,50%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Trigo</td>
+                            <td>132,20</td>
+                            <td>+3,10</td>
+                            <td><span class="price-change price-up">+2,40%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Algodão</td>
+                            <td>324,80</td>
+                            <td>+5,20</td>
+                            <td><span class="price-change price-up">+1,63%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Café Arábica</td>
+                            <td>1.245,00</td>
+                            <td>-12,50</td>
+                            <td><span class="price-change price-down">-0,99%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 2rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--text-dark);"><i class="fas fa-bell"></i> Alertas de Mercado</h4>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="alert-content">
+                            <div class="alert-title">Oportunidade de Venda</div>
+                            <div class="alert-message">Os preços da soja atingiram o maior patamar dos últimos 3 meses. Considere realizar vendas antecipadas.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Armazenamento local para histórico
+        let predictionHistory = JSON.parse(localStorage.getItem('predictionHistory')) || [];
+        let currentPrediction = null;
+        let yieldChart = null;
+        let trendChart = null;
+        let marketChart = null;
+        let overviewChart = null;
+        let map = null;
+
+        // Inicializa abas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+
+                if (tab.dataset.tab === 'history') {
+                    renderHistory();
+                } else if (tab.dataset.tab === 'analytics') {
+                    renderTrendChart();
+                    updatePerformanceMetrics();
+                    initMap();
+                } else if (tab.dataset.tab === 'market') {
+                    renderMarketChart();
+                } else if (tab.dataset.tab === 'dashboard') {
+                    renderOverviewChart();
+                    renderCalendar();
+                }
+            });
+        });
+
+        // Inicializa modal
+        document.getElementById('fab').addEventListener('click', () => {
+            document.getElementById('modal').classList.add('active');
+        });
+
+        document.getElementById('modal-close').addEventListener('click', () => {
+            document.getElementById('modal').classList.remove('active');
+        });
+
+        // Fecha modal ao clicar fora
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modal')) {
+                document.getElementById('modal').classList.remove('active');
+            }
+        });
+
+        // Atualiza widget de clima com base na região selecionada
+        document.getElementById('regiao').addEventListener('change', function() {
+            const region = this.value;
+            const weatherWidget = document.getElementById('weather-widget');
+            const weatherIcon = weatherWidget.querySelector('.weather-icon');
+            const weatherTemp = weatherWidget.querySelector('.weather-temp');
+            const weatherLocation = weatherWidget.querySelector('.weather-location');
+            const weatherDesc = weatherWidget.querySelector('.weather-desc');
+
+            // Simulação de dados climáticos por região
+            const weatherData = {
+                'North': { temp: 28, condition: 'Ensolarado', humidity: '60%', icon: 'fa-sun' },
+                'South': { temp: 18, condition: 'Nublado', humidity: '75%', icon: 'fa-cloud' },
+                'East': { temp: 22, condition: 'Parcialmente nublado', humidity: '65%', icon: 'fa-cloud-sun' },
+                'West': { temp: 24, condition: 'Chuvoso', humidity: '85%', icon: 'fa-cloud-rain' }
+            };
+
+            if (region && weatherData[region]) {
+                const data = weatherData[region];
+                weatherIcon.className = `fas ${data.icon} weather-icon`;
+                weatherTemp.textContent = `${data.temp}°C`;
+                weatherLocation.textContent = `Região ${region === 'North' ? 'Norte' :
+                                              region === 'South' ? 'Sul' :
+                                              region === 'East' ? 'Leste' : 'Oeste'}`;
+                weatherDesc.textContent = `${data.condition}, Umidade ${data.humidity}`;
+            }
+        });
+
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const button = e.target.querySelector('button');
+            const originalButtonText = button.innerHTML;
+            button.innerHTML = '<span class="spinner"></span> Processando...';
+            button.disabled = true;
+
+            const resultadoElement = document.getElementById('resultado');
+            const emptyState = document.getElementById('empty-state');
+
+            try {
+                const data = {
+                    Regiao: document.getElementById('regiao').value,
+                    Tipo_Solo: document.getElementById('tipo_solo').value,
+                    Cultura: document.getElementById('cultura').value,
+                    Precipitacao_mm: parseFloat(document.getElementById('precipitacao').value),
+                    Temperatura_Celsius: parseFloat(document.getElementById('temperatura').value),
+                    Fertilizante: document.getElementById('fertilizante').checked,
+                    Irrigacao: document.getElementById('irrigacao').checked,
+                    Condicao_Climatica: document.getElementById('condicao_climatica').value,
+                    Dias_para_Colheita: parseInt(document.getElementById('dias_colheita').value),
+                    Data: new Date().toLocaleString()
+                };
+
+                console.log("Dados enviados para o backend:", data);
+
+                // Simulação de resposta do servidor
+                const mockResponse = {
+                    previsao: (Math.random() * 10 + 5).toFixed(2), // Valor aleatório entre 5 e 15
+                    recomendacao: {
+                        usar_fertilizante: Math.random() > 0.3,
+                        usar_irrigacao: Math.random() > 0.5,
+                        melhor_tipo_solo: ['Franco', 'Argiloso', 'Arenoso'][Math.floor(Math.random() * 3)]
+                    }
+                };
+
+                // Simular atraso de rede
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                const result = mockResponse; // Em produção, usar a resposta real do servidor
+
+                console.log("Resposta do backend:", result);
+
+                // Garantir número no formato float para gráfico
+                const formattedResult = parseFloat(result.previsao).toFixed(2);
+
+                document.getElementById('result-value').textContent = `${formattedResult} Ton/ha`;
+                document.getElementById('prediction-date').textContent = new Date().toLocaleString();
+
+                const details = `
+                    <p><strong>Cultura:</strong> ${data.Cultura}</p>
+                    <p><strong>Região:</strong> ${data.Regiao}</p>
+                    <p><strong>Tipo de Solo:</strong> ${data.Tipo_Solo}</p>
+                    <p><strong>Condições:</strong> ${data.Condicao_Climatica}, ${data.Temperatura_Celsius}°C, ${data.Precipitacao_mm}mm</p>
+                `;
+                document.getElementById('result-details').innerHTML = details;
+
+                resultadoElement.style.display = 'block';
+                resultadoElement.style.borderLeftColor = '#27ae60'; // verde sucesso
+                emptyState.style.display = 'none';
+
+                // Mostrar comparação de rendimento
+                document.getElementById('yield-comparison').style.display = 'flex';
+                const comparisonValue = (Math.random() * 20 - 5).toFixed(0); // -5% a +15%
+                document.getElementById('comparison-value').textContent = `${comparisonValue}%`;
+                if (comparisonValue > 0) {
+                    document.getElementById('comparison-value').style.color = '#27ae60';
+                } else {
+                    document.getElementById('comparison-value').style.color = '#e74c3c';
+                }
+
+                updateYieldChart(data, Number(formattedResult));
+
+                currentPrediction = {
+                    ...data,
+                    previsao: formattedResult,
+                    date: new Date().toLocaleString(),
+                    recomendacao: result.recomendacao
+                };
+
+                // Atualizar recomendações
+                updateRecommendations(result.recomendacao, data.Cultura);
+
+                // Mostrar botão de compartilhar
+                document.getElementById('share-report').style.display = 'inline-flex';
+
+                // Mostrar notificação
+                showNotification('success', 'Previsão calculada com sucesso!');
+
+            } catch (error) {
+                console.error('Erro detalhado:', error);
+                document.getElementById('result-value').textContent = 'Erro';
+                document.getElementById('result-details').textContent = 'Ocorreu um erro ao calcular a previsão. Por favor, verifique seus dados e tente novamente.';
+                resultadoElement.style.display = 'block';
+                resultadoElement.style.borderLeftColor = '#e74c3c'; // vermelho erro
+                emptyState.style.display = 'none';
+
+                // Mostrar notificação de erro
+                showNotification('danger', 'Erro ao calcular previsão. Verifique seus dados.');
+            } finally {
+                button.innerHTML = originalButtonText;
+                button.disabled = false;
+            }
+        });
+
+        function updateRecommendations(recomendacao, cultura) {
+            const recFertilizante = document.getElementById('rec-fertilizante');
+            const recIrrigacao = document.getElementById('rec-irrigacao');
+            const recSolo = document.getElementById('rec-solo');
+            const recommendationOutput = document.getElementById('recommendation-output');
+            const cropRotationSuggestion = document.getElementById('crop-rotation-suggestion');
+
+            if (recomendacao) {
+                // Recomendação de Fertilizante
+                if (recomendacao.usar_fertilizante) {
+                    recFertilizante.querySelector('.alert-content .alert-message').textContent =
+                        'Recomendado para aumentar o rendimento em até 15% nesta fase de crescimento.';
+                } else {
+                    recFertilizante.querySelector('.alert-content .alert-message').textContent =
+                        'Não recomendado no momento. O solo possui nutrientes suficientes para esta cultura.';
+                }
+
+                // Recomendação de Irrigação
+                if (recomendacao.usar_irrigacao) {
+                    recIrrigacao.querySelector('.alert-content .alert-message').textContent =
+                        'Recomendada devido às condições climáticas atuais. Considere irrigação por gotejamento.';
+                } else {
+                    recIrrigacao.querySelector('.alert-content .alert-message').textContent =
+                        'Não necessária no momento. Precipitação suficiente prevista para os próximos dias.';
+                }
+
+                // Recomendação de Solo
+                if (recomendacao.melhor_tipo_solo) {
+                    recSolo.querySelector('.alert-content .alert-message').textContent =
+                        `Tipo ideal para ${cultura}: ${recomendacao.melhor_tipo_solo}. ` +
+                        (currentPrediction.Tipo_Solo === recomendacao.melhor_tipo_solo ?
+                            'Seu solo atual é ideal.' :
+                            'Considere ajustar as práticas de cultivo para este tipo de solo.');
+                }
+
+                // Sugestão de rotação de culturas baseada na cultura atual
+                const rotationCrops = {
+                    'Cotton': 'feijão',
+                    'Rice': 'trigo',
+                    'Barley': 'batata',
+                    'Soybean': 'milho',
+                    'Wheat': 'soja',
+                    'Maize': 'aveia'
+                };
+
+                if (rotationCrops[cultura]) {
+                    cropRotationSuggestion.querySelector('p').innerHTML = `
+                        Após a colheita, considere plantar <strong>${rotationCrops[cultura]}</strong> para melhorar a saúde do solo e quebrar ciclos de pragas.
+                    `;
+                }
+
+                recommendationOutput.style.display = 'block';
+            } else {
+                recommendationOutput.style.display = 'none';
+            }
+        }
+
+        function updateYieldChart() {
+            const ctx = document.getElementById('yieldChart').getContext('2d');
+
+            if (yieldChart) {
+                yieldChart.destroy();
+            }
+
+            // Limitar a mostrar apenas as últimas 10 previsões no gráfico
+            const recentHistory = predictionHistory.slice(0, 10).reverse();
+            const labels = recentHistory.map((_, index) => `Prev. ${index + 1}`);
+            const dataValues = recentHistory.map(pred => parseFloat(pred.previsao));
+            const cultures = recentHistory.map(pred => pred.Cultura);
+
+            yieldChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Rendimento (Ton/ha)',
+                        data: dataValues,
+                        backgroundColor: cultures.map(crop => {
+                            // Cores diferentes para cada cultura
+                            const colors = {
+                                'Cotton': 'rgba(52, 152, 219, 0.7)',
+                                'Rice': 'rgba(46, 204, 113, 0.7)',
+                                'Barley': 'rgba(155, 89, 182, 0.7)',
+                                'Soybean': 'rgba(230, 126, 34, 0.7)',
+                                'Wheat': 'rgba(241, 196, 15, 0.7)',
+                                'Maize': 'rgba(231, 76, 60, 0.7)'
+                            };
+                            return colors[crop] || 'rgba(39, 174, 96, 0.7)';
+                        }),
+                        borderColor: cultures.map(crop => {
+                            const colors = {
+                                'Cotton': 'rgba(52, 152, 219, 1)',
+                                'Rice': 'rgba(46, 204, 113, 1)',
+                                'Barley': 'rgba(155, 89, 182, 1)',
+                                'Soybean': 'rgba(230, 126, 34, 1)',
+                                'Wheat': 'rgba(241, 196, 15, 1)',
+                                'Maize': 'rgba(231, 76, 60, 1)'
+                            };
+                            return colors[crop] || 'rgba(39, 174, 96, 1)';
+                        }),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Toneladas por Hectare',
+                                color: '#7f8c8d'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Previsões Recentes (Mais Recente à Direita)',
+                                color: '#7f8c8d'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Últimos ${recentHistory.length} Rendimentos Previstos`,
+                            font: { size: 16 },
+                            color: '#2c3e50'
+                        },
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    const index = context[0].dataIndex;
+                                    return cultures[index] ? `Cultura: ${cultures[index]}` : `Previsão ${index + 1}`;
+                                },
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y} Ton/ha`;
+                                },
+                                footer: function(context) {
+                                    const pred = recentHistory[context[0].dataIndex];
+                                    return [
+                                        `Região: ${pred.Regiao}`,
+                                        `Solo: ${pred.Tipo_Solo}`,
+                                        `Clima: ${pred.Condicao_Climatica}`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('history-list');
+            const fullHistory = JSON.parse(localStorage.getItem('predictionHistory')) || [];
+
+            if (fullHistory.length === 0) {
+                historyList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-history" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 1rem;"></i>
+                        <h4 style="color: #7f8c8d; margin-bottom: 0.5rem;">Nenhum histórico encontrado</h4>
+                        <p style="color: #bdc3c7;">As previsões salvas aparecerão aqui</p>
+                    </div>
+                `;
+                return;
+            }
+
+            historyList.innerHTML = fullHistory.map((prediction, index) => `
+                <div class="history-item">
+                    <div class="history-header">
+                        <span class="history-crop">${prediction.Cultura}</span>
+                        <span class="history-date">${prediction.date}</span>
+                    </div>
+                    <div class="history-yield">${prediction.previsao} Ton/ha</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem;">
+                        <span style="color: #7f8c8d;">${prediction.Regiao} • ${prediction.Tipo_Solo}</span>
+                    </div>
+                    ${prediction.recomendacao ? `
+                        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #34495e;">
+                            <strong>Recomendações:</strong>
+                            ${prediction.recomendacao.usar_fertilizante ? 'Fertilizante, ' : ''}
+                            ${prediction.recomendacao.usar_irrigacao ? 'Irrigação, ' : ''}
+                            ${prediction.recomendacao.melhor_tipo_solo ? `Melhor Solo: ${prediction.recomendacao.melhor_tipo_solo}` : ''}
+                        </div>
+                    ` : ''}
+                    <div style="margin-top: 0.5rem;">
+                        <button class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;" onclick="loadPrediction(${index})">
+                            <i class="fas fa-redo"></i> Reutilizar
+                        </button>
+                        <button class="btn btn-danger" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; margin-left: 0.5rem;" onclick="deletePrediction(${index})">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadPrediction(index) {
+            const fullHistory = JSON.parse(localStorage.getItem('predictionHistory')) || [];
+            const prediction = fullHistory[index];
+
+            if (!prediction) return;
+
+            // Preencher o formulário com os dados da previsão selecionada
+            document.getElementById('regiao').value = prediction.Regiao;
+            document.getElementById('tipo_solo').value = prediction.Tipo_Solo;
+            document.getElementById('cultura').value = prediction.Cultura;
+            document.getElementById('precipitacao').value = prediction.Precipitacao_mm;
+            document.getElementById('temperatura').value = prediction.Temperatura_Celsius;
+            document.getElementById('condicao_climatica').value = prediction.Condicao_Climatica;
+            document.getElementById('dias_colheita').value = prediction.Dias_para_Colheita;
+            document.getElementById('fertilizante').checked = prediction.Fertilizante;
+            document.getElementById('irrigacao').checked = prediction.Irrigacao;
+
+            // Ativar a aba de previsão
+            document.querySelector('.tab[data-tab="forecast"]').click();
+
+            // Rolar para o topo do formulário
+            window.scrollTo(0, 0);
+
+            // Mostrar notificação
+            showNotification('success', 'Previsão carregada com sucesso!');
+        }
+
+        function deletePrediction(index) {
+            if (!confirm('Tem certeza que deseja excluir esta previsão do histórico?')) return;
+
+            const fullHistory = JSON.parse(localStorage.getItem('predictionHistory')) || [];
+            fullHistory.splice(index, 1);
+            localStorage.setItem('predictionHistory', JSON.stringify(fullHistory));
+
+            renderHistory();
+            showNotification('success', 'Previsão excluída com sucesso!');
+        }
+
+        function renderTrendChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+
+            if (trendChart) {
+                trendChart.destroy();
+            }
+
+            const fullHistoryForTrend = JSON.parse(localStorage.getItem('predictionHistory')) || [];
+            const crops = {};
+
+            fullHistoryForTrend.forEach(pred => {
+                if (!crops[pred.Cultura]) {
+                    crops[pred.Cultura] = [];
+                }
+                crops[pred.Cultura].push(parseFloat(pred.previsao));
+            });
+
+            const cropAverages = {};
+            Object.keys(crops).forEach(crop => {
+                const avg = crops[crop].reduce((a, b) => a + b, 0) / crops[crop].length;
+                cropAverages[crop] = avg.toFixed(2);
+            });
+
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(cropAverages),
+                    datasets: [{
+                        label: 'Rendimento Médio (Ton/ha)',
+                        data: Object.values(cropAverages),
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true,
+                        pointBackgroundColor: Object.keys(cropAverages).map(crop => {
+                            const colors = {
+                                'Cotton': '#3498db',
+                                'Rice': '#2ecc71',
+                                'Barley': '#9b59b6',
+                                'Soybean': '#e67e22',
+                                'Wheat': '#f1c40f',
+                                'Maize': '#e74c3c'
+                            };
+                            return colors[crop] || '#27ae60';
+                        }),
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Toneladas por Hectare',
+                                color: '#7f8c8d'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Rendimento Médio por Cultura',
+                            font: { size: 16 },
+                            color: '#2c3e50'
+                        },
+                        legend: {
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                padding: 20,
+                                color: '#2c3e50'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Média: ${context.parsed.y} Ton/ha`;
+                                },
+                                footer: function(context) {
+                                    const crop = context[0].label;
+                                    const count = crops[crop] ? crops[crop].length : 0;
+                                    return `Baseado em ${count} previsões`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderMarketChart() {
+            const ctx = document.getElementById('marketChart').getContext('2d');
+
+            if (marketChart) {
+                marketChart.destroy();
+            }
+
+            // Dados simulados de preços de commodities
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+            const commodities = {
+                'Soja': [160, 165, 170, 175, 180, 185],
+                'Milho': [85, 86, 87, 88, 89, 90],
+                'Trigo': [120, 125, 128, 130, 131, 132],
+                'Algodão': [300, 310, 315, 320, 322, 325]
+            };
+
+            marketChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: Object.keys(commodities).map((commodity, index) => {
+                        const colors = [
+                            'rgba(39, 174, 96, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(241, 196, 15, 1)',
+                            'rgba(155, 89, 182, 1)'
+                        ];
+                        return {
+                            label: commodity,
+                            data: commodities[commodity],
+                            borderColor: colors[index],
+                            backgroundColor: colors[index].replace('1)', '0.1)'),
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        };
+                    })
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Preço (R$/sc)',
+                                color: '#7f8c8d'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Evolução dos Preços de Commodities',
+                            font: { size: 16 },
+                            color: '#2c3e50'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: R$${context.parsed.y.toFixed(2)}/sc`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderOverviewChart() {
+            const ctx = document.getElementById('overviewChart').getContext('2d');
+
+            if (overviewChart) {
+                overviewChart.destroy();
+            }
+
+            // Dados simulados para o gráfico de visão geral
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+            const yieldData = [8, 8.5, 9.2, 9.8, 10.5, 11];
+            const rainData = [120, 110, 90, 60, 40, 30];
+            const tempData = [24, 24, 23, 22, 20, 19];
+
+            overviewChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Rendimento (Ton/ha)',
+                            data: yieldData,
+                            borderColor: 'rgba(39, 174, 96, 1)',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            borderWidth: 2,
+                            yAxisID: 'y',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Precipitação (mm)',
+                            data: rainData,
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            yAxisID: 'y1',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Temperatura (°C)',
+                            data: tempData,
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderWidth: 2,
+                            yAxisID: 'y2',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Rendimento (Ton/ha)',
+                                color: '#27ae60'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Precipitação (mm)',
+                                color: '#3498db'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        y2: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Temperatura (°C)',
+                                color: '#e74c3c'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Desempenho Mensal',
+                            font: { size: 16 },
+                            color: '#2c3e50'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.dataset.label === 'Rendimento (Ton/ha)') {
+                                        label += context.parsed.y.toFixed(1) + ' Ton/ha';
+                                    } else if (context.dataset.label === 'Precipitação (mm)') {
+                                        label += context.parsed.y + ' mm';
+                                    } else {
+                                        label += context.parsed.y + '°C';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initMap() {
+            if (map) {
+                map.remove();
+            }
+
+            map = L.map('productivity-map').setView([-15.788, -47.879], 4);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Adicionar áreas de produtividade simuladas
+            const productivityAreas = [
+                { lat: -12.971, lng: -38.501, productivity: 'high', name: 'Bahia' },
+                { lat: -19.902, lng: -43.940, productivity: 'medium', name: 'Minas Gerais' },
+                { lat: -23.550, lng: -46.633, productivity: 'high', name: 'São Paulo' },
+                { lat: -30.033, lng: -51.230, productivity: 'low', name: 'Rio Grande do Sul' },
+                                { lat: -15.598, lng: -56.094, productivity: 'high', name: 'Mato Grosso' },
+                                { lat: -5.795, lng: -35.209, productivity: 'medium', name: 'Rio Grande do Norte' }
+                            ];
+
+                            productivityAreas.forEach(area => {
+                                const color = area.productivity === 'high' ? '#2ecc71' :
+                                             area.productivity === 'medium' ? '#f39c12' : '#e74c3c';
+
+                                L.circleMarker([area.lat, area.lng], {
+                                    radius: 10,
+                                    fillColor: color,
+                                    color: '#fff',
+                                    weight: 1,
+                                    opacity: 1,
+                                    fillOpacity: 0.8
+                                }).addTo(map).bindPopup(`<b>${area.name}</b><br>Produtividade: ${area.productivity === 'high' ? 'Alta' : area.productivity === 'medium' ? 'Média' : 'Baixa'}`);
+                            });
+                        }
+
+                        function renderCalendar() {
+                            const calendarDays = document.getElementById('calendar-days');
+                            const today = new Date();
+                            const currentMonth = today.getMonth();
+                            const currentYear = today.getFullYear();
+
+                            // Obter primeiro dia do mês e quantos dias tem o mês
+                            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+                            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+                            // Limpar calendário
+                            calendarDays.innerHTML = '';
+
+                            // Dias vazios no início
+                            for (let i = 0; i < firstDay; i++) {
+                                const emptyDay = document.createElement('div');
+                                emptyDay.className = 'calendar-day';
+                                calendarDays.appendChild(emptyDay);
+                            }
+
+                            // Dias do mês
+                            for (let i = 1; i <= daysInMonth; i++) {
+                                const day = document.createElement('div');
+                                day.className = 'calendar-day';
+                                day.textContent = i;
+
+                                // Marcar dia atual
+                                if (i === today.getDate() && currentMonth === today.getMonth()) {
+                                    day.classList.add('today');
+                                }
+
+                                // Simular alguns dias com eventos
+                                if ([5, 12, 19, 26].includes(i)) {
+                                    day.classList.add('event');
+                                }
+
+                                calendarDays.appendChild(day);
+                            }
+                        }
+
+                        function updatePerformanceMetrics() {
+                            const fullHistory = JSON.parse(localStorage.getItem('predictionHistory')) || [];
+
+                            if (fullHistory.length === 0) {
+                                document.getElementById('avg-yield').textContent = '0.00';
+                                document.getElementById('best-crop').textContent = '-';
+                                document.getElementById('avg-rain').textContent = '0.0';
+                                document.getElementById('avg-temp').textContent = '0.0';
+                                return;
+                            }
+
+                            // Calcular rendimento médio
+                            const avgYield = fullHistory.reduce((sum, pred) => sum + parseFloat(pred.previsao), 0) / fullHistory.length;
+                            document.getElementById('avg-yield').textContent = avgYield.toFixed(2);
+
+                            // Encontrar melhor cultura
+                            const cropYields = {};
+                            fullHistory.forEach(pred => {
+                                if (!cropYields[pred.Cultura]) {
+                                    cropYields[pred.Cultura] = [];
+                                }
+                                cropYields[pred.Cultura].push(parseFloat(pred.previsao));
+                            });
+
+                            let bestCrop = '';
+                            let highestAvg = 0;
+                            Object.keys(cropYields).forEach(crop => {
+                                const avg = cropYields[crop].reduce((a, b) => a + b, 0) / cropYields[crop].length;
+                                if (avg > highestAvg) {
+                                    highestAvg = avg;
+                                    bestCrop = crop;
+                                }
+                            });
+
+                            document.getElementById('best-crop').textContent = bestCrop || '-';
+
+                            // Calcular precipitação média
+                            const avgRain = fullHistory.reduce((sum, pred) => sum + parseFloat(pred.Precipitacao_mm), 0) / fullHistory.length;
+                            document.getElementById('avg-rain').textContent = avgRain.toFixed(1);
+
+                            // Calcular temperatura média
+                            const avgTemp = fullHistory.reduce((sum, pred) => sum + parseFloat(pred.Temperatura_Celsius), 0) / fullHistory.length;
+                            document.getElementById('avg-temp').textContent = avgTemp.toFixed(1);
+                        }
+
+                        function showNotification(type, message) {
+                            const notificationCenter = document.getElementById('notification-center');
+                            const notification = document.createElement('div');
+                            notification.className = `alert alert-${type}`;
+                            notification.innerHTML = `
+                                <i class="fas fa-${type === 'success' ? 'check-circle' :
+                                                  type === 'warning' ? 'exclamation-triangle' :
+                                                  type === 'danger' ? 'times-circle' : 'info-circle'}"></i>
+                                <div class="alert-content">
+                                    <div class="alert-message">${message}</div>
+                                </div>
+                            `;
+
+                            notificationCenter.appendChild(notification);
+
+                            setTimeout(() => {
+                                notification.style.opacity = '0';
+                                setTimeout(() => notification.remove(), 500);
+                            }, 5000);
+                        }
+
+                        // Salvar previsão
+                        document.getElementById('save-prediction')?.addEventListener('click', () => {
+                            if (!currentPrediction) return;
+
+                            // Limitar histórico a 50 itens
+                            if (predictionHistory.length >= 50) {
+                                predictionHistory.pop();
+                            }
+                            predictionHistory.unshift(currentPrediction);
+                            localStorage.setItem('predictionHistory', JSON.stringify(predictionHistory));
+
+                            showNotification('success', 'Previsão salva com sucesso no histórico!');
+                            renderHistory();
+                            updatePerformanceMetrics();
+                        });
+
+                        // Exportar para PDF
+                        document.getElementById('export-pdf')?.addEventListener('click', async () => {
+                            if (!currentPrediction) {
+                                showNotification('danger', 'Nenhuma previsão para exportar.');
+                                return;
+                            }
+
+                            if (!window.jspdf || !window.html2canvas) {
+                                showNotification('danger', 'Bibliotecas necessárias não carregadas.');
+                                return;
+                            }
+
+                            const { jsPDF } = window.jspdf;
+                            const doc = new jsPDF();
+
+                            // Cabeçalho
+                            doc.setFontSize(20);
+                            doc.setTextColor(39, 174, 96);
+                            doc.text('Relatório de Previsão Agrícola', 105, 20, { align: 'center' });
+
+                            doc.setFontSize(12);
+                            doc.setTextColor(100, 100, 100);
+                            doc.text(`Gerado em: ${new Date().toLocaleString()}`, 105, 30, { align: 'center' });
+
+                             // --- INÍCIO DA CONVERSÃO DO LOGO SVG PARA PNG ---
+                            const svgData = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjMjdhZTYwIiBkPSJNMjU2IDhDMTE5IDggOCAxMTkgOCAyNTZzMTExIDI0OCAyNDggMjQ4IDI0OC0xMTEgMjQ4LTI0OFMzOTMgOCAyNTYgOHptMCA0NDhjLTExMC41IDAtMjAwLTg5LjUtMjAwLTIwMFMxNDUuNSA1NiAyNTYgNTZzMjAwIDg5LjUgMjAwIDIwMC04OS41IDIwMC0yMDAgMjAwem02MS44LTEwNC40bC04NC45LTYxLjdjLTMuMS0yLjMtNC45LTUuOS00LjktOS43TDExNiAyMjRjMCA2LjYgNS40IDEyIDEyIDEyaDMyYzYuNiAwIDEyLTUuNCAxMi0xMnYtMzYuOWw2Ni44IDQ4LjZjNS40IDMuOSA2LjUgMTEuNCAyLjYgMTYuOEwzMzcuNCAzNzBjLTQuNCA1LjQtMTIuOSA1LjgtMTguNCAxLjZ6Ii8+PC9zdmc+';
+                            let logoPngData;
+                            try {
+                                const img = new Image();
+                                img.src = svgData;
+                                await new Promise(resolve => img.onload = resolve); // Espera a imagem carregar
+
+                                const canvas = document.createElement('canvas');
+                                canvas.width = 512; // Largura do seu SVG original
+                                canvas.height = 512; // Altura do seu SVG original
+
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                logoPngData = canvas.toDataURL('image/png'); // Converte para PNG
+                            } catch (error) {
+                                console.error('Erro ao converter SVG para PNG:', error);
+                                showAlert('Erro ao processar o logo para o PDF. O logo pode não aparecer.', 'warning');
+                                logoPngData = null;
+                            }
+                            // --- FIM DA CONVERSÃO DO LOGO SVG PARA PNG ---
+
+                            // Detalhes da previsão
+                            doc.setFontSize(14);
+                            doc.setTextColor(0, 0, 0);
+                            doc.text('Detalhes da Previsão:', 20, 80);
+
+                            doc.setFontSize(12);
+                            let y = 90;
+                            doc.text(`Cultura: ${currentPrediction.Cultura}`, 20, y); y += 10;
+                            doc.text(`Região: ${currentPrediction.Regiao}`, 20, y); y += 10;
+                            doc.text(`Tipo de Solo: ${currentPrediction.Tipo_Solo}`, 20, y); y += 10;
+                            doc.text(`Condição Climática: ${currentPrediction.Condicao_Climatica}`, 20, y); y += 10;
+                            doc.text(`Temperatura: ${currentPrediction.Temperatura_Celsius}°C`, 20, y); y += 10;
+                            doc.text(`Precipitação: ${currentPrediction.Precipitacao_mm}mm`, 20, y); y += 10;
+                            doc.text(`Dias para Colheita: ${currentPrediction.Dias_para_Colheita}`, 20, y); y += 15;
+
+                            // Resultado
+                            doc.setFontSize(16);
+                            doc.setTextColor(39, 174, 96);
+                            doc.text(`Rendimento Previsto: ${currentPrediction.previsao} Ton/ha`, 105, y, { align: 'center' }); y += 20;
+
+                            // Gráfico
+                            try {
+                                const canvas = document.getElementById('yieldChart');
+                                const chartImage = await html2canvas(canvas);
+                                const imgData = chartImage.toDataURL('image/png');
+                                doc.addImage(imgData, 'PNG', 40, y, 130, 80);
+                                y += 90;
+                            } catch (error) {
+                                console.error('Erro ao exportar gráfico:', error);
+                            }
+
+                            // Recomendações
+                            if (currentPrediction.recomendacao) {
+                                doc.setFontSize(14);
+                                doc.setTextColor(0, 0, 0);
+                                doc.text('Recomendações:', 20, y); y += 10;
+
+                                doc.setFontSize(12);
+                                doc.setTextColor(50, 50, 50);
+
+                                if (currentPrediction.recomendacao.usar_fertilizante) {
+                                    doc.text('✓ Uso de fertilizante recomendado', 25, y); y += 8;
+                                } else {
+                                    doc.text('✗ Uso de fertilizante não necessário', 25, y); y += 8;
+                                }
+
+                                if (currentPrediction.recomendacao.usar_irrigacao) {
+                                    doc.text('✓ Sistema de irrigação recomendado', 25, y); y += 8;
+                                } else {
+                                    doc.text('✗ Sistema de irrigação não necessário', 25, y); y += 8;
+                                }
+
+                                if (currentPrediction.recomendacao.melhor_tipo_solo) {
+                                    doc.text(`✓ Solo ideal: ${currentPrediction.recomendacao.melhor_tipo_solo}`, 25, y); y += 8;
+                                }
+
+                                y += 10;
+                            }
+
+                            // Rodapé
+                            doc.setFontSize(10);
+                            doc.setTextColor(150, 150, 150);
+                            doc.text('Gerado por AgroVision Pro - Sistema Inteligente de Previsão Agrícola', 105, 285, { align: 'center' });
+
+                            // Salvar PDF
+                            doc.save(`Relatorio_AgroVision_${currentPrediction.Cultura}_${new Date().toISOString().slice(0,10)}.pdf`);
+                            showNotification('success', 'Relatório exportado com sucesso!');
+                        });
+
+                        // Compartilhar relatório
+                        document.getElementById('share-report')?.addEventListener('click', () => {
+                            if (!currentPrediction) return;
+
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: `Previsão Agrícola - ${currentPrediction.Cultura}`,
+                                    text: `Confira minha previsão agrícola para ${currentPrediction.Cultura}: ${currentPrediction.previsao} Ton/ha`,
+                                    url: window.location.href
+                                }).then(() => {
+                                    showNotification('success', 'Relatório compartilhado com sucesso!');
+                                }).catch(err => {
+                                    console.log('Erro ao compartilhar:', err);
+                                    showNotification('danger', 'Erro ao compartilhar relatório.');
+                                });
+                            } else {
+                                // Fallback para copiar para área de transferência
+                                const text = `Previsão Agrícola - ${currentPrediction.Cultura}\nRendimento: ${currentPrediction.previsao} Ton/ha\nRegião: ${currentPrediction.Regiao}\nTipo de Solo: ${currentPrediction.Tipo_Solo}\n\nGerado por AgroVision Pro`;
+
+                                navigator.clipboard.writeText(text).then(() => {
+                                    showNotification('success', 'Dados copiados para a área de transferência!');
+                                }).catch(err => {
+                                    console.error('Erro ao copiar:', err);
+                                    showNotification('danger', 'Erro ao copiar dados.');
+                                });
+                            }
+                        });
+
+                        // Inicialização
+                        document.addEventListener('DOMContentLoaded', () => {
+                            renderHistory();
+                            renderCalendar();
+                            updatePerformanceMetrics();
+
+                            // Simular dados iniciais para demonstração
+                            if (predictionHistory.length === 0) {
+                                const demoData = [
+                                    {
+                                        Cultura: 'Maize',
+                                        Regiao: 'North',
+                                        Tipo_Solo: 'Loam',
+                                        Precipitacao_mm: 120,
+                                        Temperatura_Celsius: 25,
+                                        Condicao_Climatica: 'Sunny',
+                                        Dias_para_Colheita: 90,
+                                        previsao: '12.45',
+                                        date: new Date(Date.now() - 86400000).toLocaleString(),
+                                        recomendacao: {
+                                            usar_fertilizante: true,
+                                            usar_irrigacao: false,
+                                            melhor_tipo_solo: 'Loam'
+                                        }
+                                    },
+                                    {
+                                        Cultura: 'Wheat',
+                                        Regiao: 'South',
+                                        Tipo_Solo: 'Clay',
+                                        Precipitacao_mm: 80,
+                                        Temperatura_Celsius: 18,
+                                        Condicao_Climatica: 'Cloudy',
+                                        Dias_para_Colheita: 120,
+                                        previsao: '8.72',
+                                        date: new Date(Date.now() - 172800000).toLocaleString(),
+                                        recomendacao: {
+                                            usar_fertilizante: true,
+                                            usar_irrigacao: true,
+                                            melhor_tipo_solo: 'Clay'
+                                        }
+                                    }
+                                ];
+
+                                predictionHistory = demoData;
+                                localStorage.setItem('predictionHistory', JSON.stringify(predictionHistory));
+                                renderHistory();
+                            }
+
+                            // Ativar a aba de dashboard por padrão
+                            document.querySelector('.tab[data-tab="dashboard"]').click();
+                        });
+                    </script>
+                </body>
+                </html>
+

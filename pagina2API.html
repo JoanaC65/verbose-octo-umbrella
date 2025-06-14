@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriChat - Edição Neon com Perguntas Rápidas</title>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            primary: "#0ff", // neon ciano (mantido para outros elementos)
+            secondary: "#ff00ff", // neon magenta (mantido para outros elementos)
+            bg: "#1a1a1d",
+            sidebar: "#111",
+            chatBg: "#222",
+            subtleStart: "#6c757d", // cor inicial para os botões sutis
+            subtleEnd: "#adb5bd",   // cor final para os botões sutis
+          },
+          keyframes: {
+            fadeInUp: {
+              "0%": { opacity: "0", transform: "translateY(20px)" },
+              "100%": { opacity: "1", transform: "translateY(0)" }
+            },
+          },
+          animation: {
+            fadeInUp: "fadeInUp 0.6s ease-out",
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Font Awesome para ícones -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+  <style>
+    /* Glassmorphism e brilho neon para cards */
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    /* Animação de "digitando" (bolinhas) */
+    .typing-dots > span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #bbb;
+      border-radius: 50%;
+      margin-right: 4px;
+      animation: blink 1.4s infinite both;
+    }
+    .typing-dots > span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-dots > span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0; }
+      40% { opacity: 1; }
+    }
+    /* Estilo para botões sutis */
+    .subtle-btn {
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--tw-color-subtleStart, #6c757d), var(--tw-color-subtleEnd, #adb5bd));
+      color: #f8f9fa;
+      transition: background 0.3s ease, transform 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      margin: 10px 0;
+    }
+    .subtle-btn:hover {
+      background: linear-gradient(135deg, var(--tw-color-subtleEnd, #adb5bd), var(--tw-color-subtleStart, #6c757d));
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex bg-gradient-to-br from-gray-900 to-black font-sans text-white">
+
+  <!-- Sidebar com efeito glass e neon -->
+  <aside class="w-64 bg-sidebar p-6 flex flex-col space-y-6 glass border-r border-gray-800">
+    <!-- Logo Neon -->
+    <div class="flex items-center gap-3">
+      <img src="https://img.icons8.com/ios-filled/50/0ff/plant-under-sun.png" alt="Agri Neon" class="w-10 h-10" />
+      <span class="text-3xl font-bold">AgriChat</span>
+    </div>
+
+    <!-- Botão Novo Chat -->
+    <button class="flex items-center gap-2 border border-primary rounded-md px-4 py-2 hover:bg-primary hover:bg-opacity-10 transition">
+      <i class="fas fa-plus"></i>
+      <span>Novo Chat</span>
+    </button>
+
+    <!-- Histórico de Conversas -->
+    <nav class="flex flex-col space-y-3">
+      <button class="flex items-center gap-2 p-2 glass rounded-md hover:bg-gray-700 transition">
+        <i class="fas fa-comment-dots"></i>
+        <span>Conversa 1</span>
+      </button>
+      <button class="flex items-center gap-2 p-2 glass rounded-md hover:bg-gray-700 transition">
+        <i class="fas fa-comment-dots"></i>
+        <span>Conversa 2</span>
+      </button>
+    </nav>
+
+    <!-- Botões com estilo sutil -->
+    <a href="/index2" class="subtle-btn">Análise Estatística</a>
+    <a href="/" class="subtle-btn">Página Inicial</a>
+    <a href="/predict_page" class="subtle-btn">Previsão de Rendimento</a>
+    <button class="subtle-btn" onclick="window.location.href='http://localhost:8501'">Dashboard</button>
+
+    <!-- Footer -->
+    <div class="mt-auto text-sm text-gray-500">
+      <hr class="border-gray-800 my-4" />
+      <p>Versão Neon Beta</p>
+    </div>
+  </aside>
+
+  <!-- Área Principal de Chat -->
+  <main class="flex-1 flex flex-col">
+    <!-- Cabeçalho do Chat -->
+    <header class="px-6 py-4 bg-bg border-b border-gray-800 flex items-center justify-between glass">
+      <h1 class="text-2xl font-bold">Chat sobre Agricultura</h1>
+      <div class="flex items-center gap-3">
+        <button class="hover:text-primary transition"><i class="fas fa-cog"></i></button>
+      </div>
+    </header>
+
+    <!-- Seção de Perguntas Rápidas -->
+    <section id="quick-questions" class="px-6 py-4 bg-bg border-b border-gray-800 glass flex flex-wrap gap-4">
+      <button class="quick-btn bg-secondary bg-opacity-80 hover:bg-opacity-100 transition rounded-full px-4 py-2" data-question="Quantas variáveis tem a base de dados?">
+        Quantas variáveis tem a base de dados?
+      </button>
+      <button class="quick-btn bg-secondary bg-opacity-80 hover:bg-opacity-100 transition rounded-full px-4 py-2" data-question="Qual a melhor cultura para solo arenoso?">
+        Qual a melhor cultura para solo arenoso?
+      </button>
+      <button class="quick-btn bg-secondary bg-opacity-80 hover:bg-opacity-100 transition rounded-full px-4 py-2" data-question="Qual a relação entre a condição climática e o rendimento por hectare?">
+        Qual a relação entre a condição climática e o rendimento por hectare?
+      </button>
+    </section>
+
+    <!-- Container de Mensagens -->
+    <section id="messages" class="flex-1 p-6 overflow-y-auto space-y-6 bg-chatBg">
+      <!-- Mensagens serão inseridas aqui -->
+    </section>
+
+    <!-- Área de Input com animação e efeito glass -->
+    <footer class="px-6 py-4 bg-bg border-t border-gray-800 glass">
+      <div class="flex gap-4">
+        <input type="text" id="pergunta" placeholder="Faça sua pergunta sobre agricultura..."
+          class="flex-1 rounded-full px-5 py-3 bg-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary transition" />
+        <button id="enviar" class="bg-primary hover:bg-cyan-500 rounded-full px-6 py-3 transition">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Função para retornar avatares com efeitos neon
+    function getAvatar(tipo) {
+      if (tipo === 'user-message') {
+        return `<img src="https://img.icons8.com/fluency/48/0ff/user-male-circle.png" class="w-10 h-10 rounded-full border-2 border-primary" alt="Usuário" />`;
+      } else if (tipo === 'bot-message') {
+        return `<img src="https://img.icons8.com/color/48/ffffff/robot-2.png" class="w-10 h-10 rounded-full border-2 border-secondary" alt="Bot" />`;
+      }
+      return '';
+    }
+
+    // Função para adicionar mensagens com animação
+    function adicionarMensagem(tipo, texto) {
+      let mensagemHTML = '';
+      if (tipo === 'user-message') {
+        mensagemHTML = `
+          <div class="flex items-end justify-end gap-3 animate-fadeInUp">
+            <div class="max-w-[75%] bg-primary bg-opacity-80 backdrop-blur-sm p-4 rounded-xl shadow-lg text-black whitespace-pre-wrap">${texto}</div>
+            ${getAvatar('user-message')}
+          </div>
+        `;
+      } else if (tipo === 'bot-message') {
+        mensagemHTML = `
+          <div class="flex items-end justify-start gap-3 animate-fadeInUp">
+            ${getAvatar('bot-message')}
+            <div class="max-w-[75%] bg-secondary bg-opacity-80 backdrop-blur-sm p-4 rounded-xl shadow-lg text-black whitespace-pre-wrap">${texto}</div>
+          </div>
+        `;
+      } else if (tipo === 'loading') {
+        mensagemHTML = `
+          <div class="flex items-center justify-start gap-3 animate-fadeInUp">
+            ${getAvatar('bot-message')}
+            <div class="max-w-[60%] bg-secondary bg-opacity-80 backdrop-blur-sm p-4 rounded-xl shadow-lg text-gray-600 italic">
+              <div class="typing-dots">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      $('#messages').append(mensagemHTML);
+      $('#messages').scrollTop($('#messages')[0].scrollHeight);
+    }
+
+    // Função para enviar a pergunta
+    function enviarPergunta(pergunta) {
+      if (pergunta.trim()) {
+        adicionarMensagem('user-message', pergunta);
+        adicionarMensagem('loading', '');
+
+        $.ajax({
+          url: '/pergunta',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ pergunta: pergunta }),
+          success: function(data) {
+            $('#messages').find('.italic').closest('div.flex').remove();
+            adicionarMensagem('bot-message', data.resposta);
+          },
+          error: function() {
+            $('#messages').find('.italic').closest('div.flex').remove();
+            adicionarMensagem('bot-message', 'Erro ao processar a pergunta.');
+          }
+        });
+      }
+    }
+
+    $(document).ready(function(){
+      $('#enviar').click(function(){
+        const pergunta = $('#pergunta').val();
+        $('#pergunta').val('');
+        enviarPergunta(pergunta);
+      });
+
+      $('#pergunta').keypress(function(e){
+        if(e.which === 13) {
+          $('#enviar').click();
+        }
+      });
+
+      $('.quick-btn').click(function(){
+        const perguntaRapida = $(this).data('question');
+        $('#pergunta').val(perguntaRapida);
+        $('#enviar').click();
+      });
+    });
+  </script>
+</body>
+</html>

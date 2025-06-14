@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Análise Estatística de Variáveis</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Animate.css para animações -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+     :root {
+      --primary-bg: #fbfaf7;
+      --primary-color: #555;
+      --navbar-bg: #a3c9a8;
+      --card-bg: #fff;
+      --table-head-bg: #d9f0e3;
+      --table-head-color: #2a6f4f;
+      --footer-bg: #a3c9a8;
+      --insight-bg: #eef8f2;
+    }
+    /* Tema Vibrante (exemplo) */
+    .tema-vibrante {
+      --primary-bg: #fff8f0;
+      --primary-color: #3d3d3d;
+      --navbar-bg: #ffcc80;
+      --card-bg: #fff;
+      --table-head-bg: #ffe0b2;
+      --table-head-color: #bf360c;
+      --footer-bg: #ffcc80;
+      --insight-bg: #fff3e0;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--primary-bg);
+      color: var(--primary-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    /* Navbar */
+    .navbar {
+      background-color: var(--navbar-bg) !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: background-color 0.3s;
+    }
+    /* Seção Hero com vídeo e animação */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      overflow: hidden;
+      text-align: center;
+      color: #fff;
+    }
+    .hero video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.3);
+      z-index: -1;
+    }
+    .hero h1 {
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 3rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+    }
+    /* Cabeçalho Personalizado */
+    .custom-header {
+      padding: 20px;
+      background-color: var(--navbar-bg);
+      color: #fff;
+      text-align: center;
+    }
+    .custom-header h2 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    /* Container principal */
+    .container {
+      margin-top: 30px;
+    }
+    /* Cartões */
+    .card {
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+      background: var(--card-bg);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    /* Spinner oculto por padrão */
+    .hidden {
+      display: none;
+    }
+    /* Tabelas com zebra striping, hover e bordas arredondadas */
+    .table-responsive table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.95rem;
+    }
+    .table-responsive table thead th {
+      background-color: var(--table-head-bg);
+      color: var(--table-head-color);
+      padding: 0.75rem;
+      text-align: center;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      border-bottom: 2px solid var(--navbar-bg);
+      transition: background-color 0.3s;
+    }
+    .table-responsive table tbody td {
+      padding: 0.75rem;
+      text-align: center;
+      border: 1px solid #e0e0e0;
+    }
+    .table-responsive table tbody tr:nth-of-type(odd) {
+      background-color: #f9f9f9;
+    }
+    .table-responsive table tbody tr:hover {
+      background-color: #f1f9f4;
+    }
+    /* Botão de alternância do tema */
+    .toggle-btn {
+      cursor: pointer;
+    }
+    /* Seção de Insights com storytelling */
+    .insights {
+      background: var(--insight-bg);
+      border-left: 5px solid var(--navbar-bg);
+      padding: 1rem;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+    /* Rodapé */
+    footer {
+      margin-top: 30px;
+      padding: 20px 0;
+      background-color: var(--footer-bg);
+      color: #fff;
+      text-align: center;
+    }
+    /* Botões e links com efeito hover */
+    .btn:hover, a:hover {
+      opacity: 0.9;
+    }
+    /* Filtros Avançados */
+    #advancedFilters {
+      display: none;
+      margin-top: 15px;
+    }
+    /* Modo escuro */
+    body.dark-mode {
+      background: #222;
+      color: #ccc;
+    }
+    body.dark-mode .card {
+      background: #333;
+      color: #ccc;
+    }
+    body.dark-mode .navbar,
+    body.dark-mode .hero {
+      background-color: #333;
+    }
+    /* Atualizações para as tabelas no modo escuro */
+    body.dark-mode .table-responsive table thead th {
+      background-color: #555;
+      color: #ddd;
+      border-bottom: 2px solid #444;
+    }
+    body.dark-mode .table-responsive table tbody td {
+      border: 1px solid #444;
+      color: #eee;
+    }
+    body.dark-mode .table-responsive table tbody tr:nth-of-type(odd) {
+      background-color: #2a2a2a;
+    }
+    body.dark-mode .table-responsive table tbody tr:hover {
+      background-color: #333;
+    }
+    /* Atualizações para a seção Insights no modo escuro */
+    body.dark-mode .insights {
+      background: #333;
+      border-left: 5px solid #555;
+      color: #ddd;
+    }
+    /* Overlay de carregamento centralizado */
+    #loadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      display: none;
+    }
+     /* ================= Chat Widget ================= */
+    /* Botão flutuante para abrir o chat */
+    #chat-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #007bff;
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 30px;
+      text-align: center;
+      line-height: 60px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Caixa de chat */
+    #chat-widget {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 350px;
+      height: 450px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Header do chat */
+    .chat-header {
+      background: #007bff;
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* Estilo do título "Assistente" */
+    .chat-header strong {
+      font-size: 14px;
+    }
+
+    /* Botão de fechar */
+    .chat-header button {
+      background: transparent;
+      color: white;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    /* Área de mensagens */
+    #chat-messages {
+      padding: 15px;
+      flex: 1;
+      overflow-y: auto;
+      height: calc(100% - 150px); /* Ajuste para não cortar a área de entrada */
+    }
+
+    /* Campo de entrada de texto */
+    #user-input {
+      width: calc(100% - 20px);
+      margin: 10px;
+      padding: 10px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    /* Botão de envio */
+    #chat-widget button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    #chat-widget button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Estilos para as mensagens */
+    .chat-message {
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .chat-message.user {
+      text-align: right;
+      color: #007bff;
+    }
+
+    .chat-message.bot {
+      text-align: left;
+      color: #333;
+    }
+
+    /* Ajustes para a área de chat em geral */
+    #chat-widget .chat-body {
+      padding: 10px;
+      flex: 1;
+      overflow-y: auto;
+      background: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* Estilo para o botão */
+    .btn-success {
+      display: inline-block;
+      padding: 12px 24px; /* Mais espaço interno */
+      background-color: #28a745; /* Cor verde */
+      color: white; /* Texto branco */
+      font-size: 16px;
+      font-weight: bold; /* Texto em negrito */
+      border-radius: 25px; /* Bordas arredondadas */
+      text-align: center;
+      text-decoration: none; /* Remove o sublinhado */
+      transition: all 0.3s ease; /* Transição suave para mudanças de estilo */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para um efeito 3D */
+    }
+
+    /* Efeito de hover para o botão */
+    .btn-success:hover {
+      background-color: #218838; /* Cor mais escura ao passar o mouse */
+      transform: translateY(-2px); /* Dá a sensação de que o botão sobe um pouco */
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Aumenta a sombra */
+    }
+
+    /* Efeito de foco para o botão (quando clicado ou selecionado) */
+    .btn-success:focus {
+      outline: none; /* Remove a borda de foco padrão */
+      box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.5); /* Adiciona uma borda de destaque */
+    }
+
+    .custom-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 30px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .custom-btn-primary {
+      background: linear-gradient(45deg, #1d8cf8, #007ad9);
+      color: #fff;
+    }
+
+    .custom-btn-success {
+      background: linear-gradient(45deg, #28a745, #218838);
+      color: #fff;
+    }
+
+    .custom-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+    }
+
+  </style>
+</head>
+
+<body>
+  <!-- Overlay de carregamento -->
+  <div id="loadingOverlay">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <!-- Navbar com seletor de tema personalizado -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/"><i class="fas fa-seedling me-2"></i>Análise Estatística</a>
+      <div class="d-flex align-items-center">
+        <select id="themeSelector" class="form-select me-2" style="width: 150px;">
+          <option value="default">Suave</option>
+          <option value="vibrante">Vibrante</option>
+        </select>
+        <button id="advancedFiltersToggle" class="btn btn-outline-dark me-2">
+          <i class="fas fa-filter"></i> Filtros Avançados
+        </button>
+        <button id="themeToggle" class="btn btn-outline-dark toggle-btn">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Seção Hero com parallax e overlay -->
+  <section class="hero">
+    <video autoplay muted loop>
+      <source src="{{ url_for('static', filename='videos/agriculture.mp4') }}" type="video/mp4">
+      Seu navegador não suporta vídeo HTML5.
+    </video>
+    <div class="container d-flex flex-column flex-md-row align-items-center justify-content-center text-center text-md-start" style="position: relative; z-index: 1;">
+      <div>
+        <h1 class="display-4 animate__animated animate__fadeInDown">
+          <i class="fas fa-tractor"></i> Explore os seus Dados Agrícolas
+        </h1>
+        <p class="lead animate__animated animate__fadeInUp">
+          Insights poderosos para maximizar a produtividade e otimizar a produção.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Descrição da Base de Dados -->
+  <div class="container my-4">
+    <div class="card shadow animate__animated animate__fadeIn">
+      <div class="card-body">
+        <div class="row g-3 justify-content-center">
+          <div class="col-md-10 text-center">
+            <h3 class="card-title">
+              <i class="fas fa-database"></i> Sobre a Base de Dados
+            </h3>
+            <p class="card-text">
+              Este DataSet reúne dados agrícolas detalhados de 1.000.000 de amostras para prever a produtividade (toneladas por hectare) considerando solo, clima e práticas de cultivo.
+            </p>
+            <p class="card-text">
+              Ideal para regressão em machine learning, esta base de dados permite analisar como diferentes factores influenciam a produtividade agrícola. É uma ferramenta valiosa para investigadores, agrónomos e cientistas de dados que pretendem optimizar o rendimento das culturas, fazer previsões precisas e obter insights estratégicos para a gestão agrícola.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulário, Insights e Estatísticas -->
+  <div class="container">
+    <!-- Card do Formulário -->
+    <div class="card animate__animated animate__fadeIn">
+      <div class="card-body">
+        <h2 class="card-title mb-4">
+          <i class="fas fa-sliders-h"></i> Escolha a Variável para Análise
+        </h2>
+        <form id="statsForm" method="POST" action="/estatisticas">
+          <div class="mb-3">
+            <label for="variavel" class="form-label">Variável:</label>
+            <select class="form-select" id="variavel" name="variavel">
+              <option value="Regiao">Regiao</option>
+              <option value="Tipo_Solo">Tipo_Solo</option>
+              <option value="Cultura">Cultura</option>
+              <option value="Precipitacao_mm">Precipitacao_mm</option>
+              <option value="Temperatura_Celsius">Temperatura_Celsius</option>
+              <option value="Fertilizante">Fertilizante</option>
+              <option value="Irrigacao">Irrigacao</option>
+              <option value="Condicao_Climatica">Condicao_Climatica</option>
+              <option value="Dias_para_Colheita">Dias_para_Colheita</option>
+              <option value="Rendimento_Toneladas_Por_Hectare">Rendimento_Toneladas_Por_Hectare</option>
+              <option value="Razao_Chuva_Temperatura">Razao_Chuva_Temperatura</option>
+              <option value="Rendimento_Por_Dia">Rendimento_Por_Dia</option>
+            </select>
+          </div>
+          <!-- Descrição da variável -->
+          <div id="variableDescription" class="mb-3"></div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-search"></i> Analisar
+            </button>
+          </div>
+          <!-- Spinner de carregamento -->
+          <div id="loadingSpinner" class="mt-3 hidden text-center">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Carregando...</span>
+            </div>
+          </div>
+          <!-- Filtros Avançados (placeholder) -->
+          <div id="advancedFilters">
+            <hr>
+            <h5>Filtros Avançados</h5>
+            <p>Aqui você pode adicionar filtros personalizados para refinar sua análise.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Seção de Insights -->
+    <div class="card animate__animated animate__fadeInUp">
+      <div class="card-body insights">
+        <h3><i class="fas fa-lightbulb"></i> Insights</h3>
+        <p id="insightText">
+          Selecione uma variável para ver dicas e interpretações dos dados. Por exemplo, ao escolher "Precipitacao_mm", considere variações sazonais e seu impacto na produtividade.
+        </p>
+      </div>
+    </div>
+
+    <!-- Exibição das Estatísticas -->
+    <div id="statsSection">
+      {% if dtype %}
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-info-circle"></i> <strong>Tipo de Dados</strong>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              {{ dtype | safe }}
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <p>Dados não disponíveis.</p>
+      {% endif %}
+
+      {% if basic_stats %}
+        <div class="card animate__animated animate__fadeInUp">
+          <div class="card-header">
+            <i class="fas fa-calculator"></i> <strong>Estatísticas Básicas</strong>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              {{ basic_stats | safe }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if numeric_stats %}
+        <div class="card animate__animated animate__fadeInUp">
+          <div class="card-header">
+            <i class="fas fa-sort-numeric-up"></i> <strong>Estatísticas Numéricas</strong>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              {{ numeric_stats | safe }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if group_stats %}
+        <div class="card animate__animated animate__fadeInUp">
+          <div class="card-header">
+            <i class="fas fa-layer-group"></i> <strong>Estatísticas de Grupo</strong>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              {{ group_stats | safe }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="card animate__animated animate__fadeInUp">
+      <div class="card-body">
+        <h2 class="card-title mb-4 text-center">
+          <i class="fas fa-chart-pie"></i> Estatísticas dos Dados Transformados
+        </h2>
+        <div class="row text-center">
+          <div class="col-md-6">
+            <button id="btnStatsNormalizado" class="btn custom-btn custom-btn-primary btn-lg">
+              Dados Normalizados
+            </button>
+          </div>
+          <div class="col-md-6">
+            <button id="btnStatsPadronizado" class="btn custom-btn custom-btn-success btn-lg">
+              Dados Padronizados
+            </button>
+          </div>
+        </div>
+        <div id="transformedStatsArea" class="mt-4">
+          <!-- Área para atualizar a tabela existente -->
+        </div>
+      </div>
+    </div>
+    </div>
+
+  <!-- ================= Chat Widget ================= -->
+  <!-- Botão flutuante -->
+  <div id="chat-toggle">🤖</div> <!-- Removido o onclick direto -->
+
+  <!-- Caixa de chat oculta -->
+  <div id="chat-widget" style="display: none;">
+    <div class="chat-header">
+      <strong>Assistente</strong>
+      <button onclick="toggleChat()">✖️</button>
+    </div>
+    <div id="chat-messages"></div>
+    <input type="text" id="user-input" placeholder="Digite sua pergunta..." />
+    <button id="chatSend">Enviar</button>
+  </div>
+
+  <a href="/pagina2API" class="btn btn-success">Perguntas</a>
+  <a href="/" class="btn btn-success">Página Inicial</a>
+  <a href="/predict_page" class="btn btn-success">Previsão de Rendimento</a>
+  <a href="/fertilizante_page" class="btn btn-success btn-lg mx-2">Previsão de Necessidade de Fertilizante</a>
+  <button class="btn btn-success" onclick="window.location.href='http://localhost:8501'">Dashboard</button>
+
+  <!-- Rodapé -->
+  <footer>
+    <div class="container">
+      <p class="mb-0">&copy; 2025 Análise Estatística. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS e dependências -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- jQuery para AJAX -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    });
+
+    // Alternar modo claro/escuro
+    document.getElementById('themeToggle').addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+      const icon = this.querySelector('i');
+      icon.classList.toggle('fa-moon');
+      icon.classList.toggle('fa-sun');
+    });
+
+    // Seletor de tema personalizado
+    document.getElementById('themeSelector').addEventListener('change', function() {
+      if (this.value === 'vibrante') {
+        document.body.classList.add('tema-vibrante');
+      } else {
+        document.body.classList.remove('tema-vibrante');
+      }
+    });
+
+    // Toggle para filtros avançados
+    document.getElementById('advancedFiltersToggle').addEventListener('click', function() {
+      const advancedFilters = document.getElementById('advancedFilters');
+      if (advancedFilters.style.display === 'none' || advancedFilters.style.display === '') {
+        advancedFilters.style.display = 'block';
+      } else {
+        advancedFilters.style.display = 'none';
+      }
+    });
+
+    // Descrição da variável e insights dinâmicos
+    const variableDescriptions = {
+      "Regiao": "A região geográfica onde a cultura é cultivada (Norte, Leste, Sul, Oeste).",
+      "Tipo_Solo": "O tipo de solo em que a cultura é plantada (Argiloso, Arenoso, Franco, Silte, Turfoso, Calcário).",
+      "Cultura": "O tipo de cultura cultivada (Trigo, Arroz, Milho, Cevada, Soja, Algodão).",
+      "Precipitacao_mm": "A quantidade de precipitação recebida em milímetros durante o período de crescimento.",
+      "Temperatura_Celsius": "A temperatura média durante o período de crescimento, em graus Celsius.",
+      "Fertilizante": "Indica se o fertilizante foi aplicado (True = Sim, False = Não).",
+      "Irrigacao": "Indica se a irrigação foi utilizada (True = Sim, False = Não).",
+      "Condicao_Climatica": "A condição climática predominante (Ensolarado, Chuvoso, Nublado).",
+      "Dias_para_Colheita": "Número de dias necessários para a colheita.",
+      "Rendimento_Toneladas_Por_Hectare": "Produtividade medida em toneladas por hectare.",
+      "Razao_Chuva_Temperatura": "Métrica que relaciona a chuva com a temperatura.",
+      "Rendimento_Por_Dia": "Produtividade diária da colheita."
+    };
+    const variableInsights = {
+      "Regiao": "A localização geográfica influencia diretamente o clima, os tipos de solo disponíveis e até mesmo as culturas mais viáveis. Leve em conta variações regionais, pois uma mesma cultura pode apresentar resultados bem diferentes conforme a região onde é cultivada.",
+      "Tipo_Solo": "A textura e composição do solo afetam a capacidade de retenção de água, drenagem e disponibilidade de nutrientes. Um solo bem ajustado à cultura escolhida pode melhorar significativamente o rendimento.",
+      "Cultura": "Cada tipo de cultura tem necessidades específicas de clima, solo e manejo. Entender essas características é fundamental para maximizar o rendimento e reduzir perdas.",
+      "Precipitacao_mm": "Observe a quantidade de chuva ao longo do ciclo da cultura. Chuvas bem distribuídas geralmente favorecem o crescimento, enquanto períodos muito secos ou chuvas excessivas podem comprometer a produção.",
+      "Temperatura_Celsius": "As temperaturas ideais variam de cultura para cultura, mas extremos — muito calor ou muito frio — tendem a prejudicar o desenvolvimento das plantas. Monitorar a média térmica ajuda a prever possíveis impactos.",
+      "Fertilizante": "O uso correto (tipo e quantidade) de fertilizantes contribui para fornecer os nutrientes necessários no momento certo. Um manejo equilibrado evita desperdícios e melhora a produtividade do solo.",
+      "Irrigacao": "Em regiões com precipitação irregular ou períodos de estiagem, a irrigação torna-se essencial. Sistemas eficientes garantem que as plantas recebam a quantidade adequada de água, mesmo em condições climáticas desfavoráveis.",
+      "Condicao_Climatica": "Eventos extremos como geadas, granizo, tempestades ou ventos fortes podem causar danos severos às lavouras. Avaliar e se preparar para essas condições ajuda a mitigar riscos.",
+      "Dias_para_Colheita": "Culturas que exigem muitos dias até a colheita estão mais expostas a riscos climáticos e pragas. Um ciclo mais curto pode ser vantajoso em regiões com clima instável.",
+      "Rendimento_Toneladas_Por_Hectare": "Essa é a métrica principal de produtividade. Compare-a com os demais fatores para entender quais variáveis estão impulsionando (ou prejudicando) os resultados.",
+      "Razao_Chuva_Temperatura": "Essa métrica permite observar a interação entre dois fatores climáticos cruciais. Por exemplo, alta temperatura com pouca chuva pode indicar estresse hídrico.",
+      "Rendimento_Por_Dia": "Ao dividir o rendimento total pelos dias até a colheita, obtém-se uma medida de produtividade diária. Esse indicador ajuda a avaliar a eficiência da cultura ao longo do tempo."
+    };
+
+
+    function updateDescription() {
+      const selectedVar = document.getElementById("variavel").value;
+      document.getElementById("variableDescription").innerHTML = variableDescriptions[selectedVar] || "";
+      document.getElementById("insightText").innerHTML = variableInsights[selectedVar] || "Selecione uma variável para ver dicas e interpretações dos dados.";
+    }
+    document.getElementById("variavel").addEventListener("change", updateDescription);
+    updateDescription();
+
+    // Função para exibir/ocultar o overlay de carregamento
+    function showLoading(show) {
+      if (show) {
+        $('#loadingOverlay').fadeIn(200);
+      } else {
+        $('#loadingOverlay').fadeOut(200);
+      }
+    }
+
+    // Submissão via AJAX para análise da variável (mantém funções existentes)
+    $(document).ready(function(){
+      $('#statsForm').on('submit', function(e) {
+        e.preventDefault();
+        $('#errorSection').html('');
+        $('#loadingSpinner').removeClass('hidden');
+        $.ajax({
+          type: 'POST',
+          url: '/estatisticas',
+          data: $(this).serialize(),
+          success: function(response) {
+            $('#loadingSpinner').addClass('hidden');
+            var newStats = $(response).find('#statsSection').html();
+            if (newStats) {
+              $('#statsSection').fadeOut(200, function() {
+                $(this).html(newStats).fadeIn(400);
+              });
+            } else {
+              $('#statsSection').fadeOut(200, function() {
+                $(this).html(response).fadeIn(400);
+              });
+            }
+          },
+          error: function(xhr, status, error) {
+            $('#loadingSpinner').addClass('hidden');
+            $('#errorSection').html('<div class="alert alert-danger">Erro: ' + error + '</div>');
+          }
+        });
+      });
+
+      // Estatísticas de Dados Normalizados e Padronizados
+      $('#btnStatsNormalizado, #btnStatsPadronizado').on('click', function() {
+        const endpoint = $(this).attr('id') === 'btnStatsNormalizado' ? '/stats_normalizado_var' : '/stats_padronizado_var';
+        const variavel = $('#variavel').val();
+        showLoading(true);
+        $.ajax({
+          url: endpoint + '?variavel=' + variavel,
+          method: 'GET',
+          dataType: 'json',
+          beforeSend: function() {
+            $('#transformedStatsArea').html('<p>Carregando estatísticas...</p>');
+          },
+          success: function(data) {
+            showLoading(false);
+            let html = '<h3 class="animate__animated animate__fadeInDown">Estatísticas Básicas</h3><table class="table table-bordered animate__animated animate__fadeInDown">';
+            for (let key in data.estatisticas_basicas) {
+              html += `<tr><th>${key}</th><td>${data.estatisticas_basicas[key]}</td></tr>`;
+            }
+            html += '</table>';
+            html += '<h3 class="animate__animated animate__fadeInDown">Estatísticas Avançadas</h3><table class="table table-bordered animate__animated animate__fadeInDown">';
+            for (let key in data.estatisticas_avancadas) {
+              html += `<tr><th>${key}</th><td>${data.estatisticas_avancadas[key]}</td></tr>`;
+            }
+            html += '</table>';
+            $('#transformedStatsArea').fadeOut(200, function() {
+              $(this).html(html).fadeIn(400);
+            });
+          },
+          error: function() {
+            showLoading(false);
+            $('#transformedStatsArea').html('<p>Ocorreu um erro ao carregar as estatísticas.</p>');
+          }
+        });
+      });
+    });
+
+    // ================= Código do Chat Widget =================
+    // Função para abrir/fechar o chat
+    // Função para abrir/fechar o chat
+    function toggleChat() {
+      console.log("Função toggleChat chamada");  // Verifique se isso aparece no console
+      var chatWidget = document.getElementById('chat-widget');
+      // Se o chat estiver oculto, mostramos; se estiver visível, ocultamos
+      if (chatWidget.style.display === 'none' || chatWidget.style.display === '') {
+        console.log("Mostrando o chat");
+        chatWidget.style.display = 'block';  // Torna o chat visível
+      } else {
+        console.log("Ocultando o chat");
+        chatWidget.style.display = 'none';  // Torna o chat invisível
+      }
+    }
+
+    $(document).ready(function() {
+      // Adicionando evento de clique ao ícone do chat
+      $('#chat-toggle').click(function() {
+        toggleChat();  // Chama a função para abrir ou fechar o chat
+      });
+
+      // Envio da pergunta no botão "Enviar"
+      $('#chatSend').click(function() {
+        enviarPergunta();
+      });
+
+      // Envio da pergunta ao pressionar Enter
+      $('#user-input').keypress(function(e) {
+        if (e.which === 13) {  // Código da tecla Enter
+          enviarPergunta();  // Chama a função de envio
+        }
+      });
+    });
+
+    // Função para enviar a pergunta
+    function enviarPergunta() {
+      var pergunta = $('#user-input').val().trim();  // Pega o valor do campo de entrada
+      if (pergunta !== '') {  // Verifica se a pergunta não está vazia
+        // Adiciona a pergunta do usuário ao chat
+        $('#chat-messages').append('<div class="chat-message user">' + pergunta + '</div>');
+        $('#user-input').val('');  // Limpa o campo de entrada
+
+        // Envia a pergunta para a API
+        $.ajax({
+          url: '/pergunta',  // Endereço da sua API (ajuste conforme necessário)
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ pergunta: pergunta }),  // Envia a pergunta no corpo da requisição
+          success: function(response) {
+            // Exibe a resposta do bot
+            $('#chat-messages').append('<div class="chat-message bot">' + response.resposta + '</div>');
+            $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);  // Rola para o final
+          },
+          error: function() {
+            // Em caso de erro, exibe uma mensagem de erro
+            $('#chat-messages').append('<div class="chat-message bot">Erro ao processar a pergunta.</div>');
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Estilos para o modo claro (light mode) */
+        body.light-mode {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Estilos para o modo escuro (dark mode) */
+        body.dark-mode {
+            background-color: #121212;
+            color: #f5f5f5;
+        }
+
+        /* Vídeo de fundo */
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Mantido o layout centralizado */
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 40px 0 10px 0;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            animation: fadeIn 1.5s ease forwards, textGlow 1.5s infinite alternate;
+        }
+
+        .subtitle {
+            font-size: 2.4rem;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            animation: fadeIn 2s ease forwards, subtitleGlow 2s infinite alternate;
+            animation-delay: 0.5s;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 60px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 50px;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeIn 2.5s ease forwards;
+            animation-delay: 1s;
+        }
+
+        .button {
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #e4a800, #8a4b10);
+            color: white;
+            border: none;
+            border-radius: 35px;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: width 0.4s, height 0.4s, top 0.4s, left 0.4s;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .button:hover::before {
+            width: 0;
+            height: 0;
+            top: 50%;
+            left: 50%;
+        }
+
+        .button:hover {
+            background: linear-gradient(135deg, #8a4b10, #e4a800);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Animações para o texto */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Efeito de brilho para o título */
+        @keyframes textGlow {
+            0% {
+                text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+            100% {
+                text-shadow: 0 4px 20px rgba(0, 255, 0, 0.7), 0 1px 3px rgba(0, 255, 0, 0.5);
+            }
+        }
+
+        /* Efeito de brilho para o subtítulo */
+        @keyframes subtitleGlow {
+            0% {
+                text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4);
+            }
+            100% {
+                text-shadow: 1px 1px 15px rgba(0, 255, 0, 0.7);
+            }
+        }
+
+        /* Estilo para o botão de alternância do modo */
+        .mode-toggle {
+            position: fixed; /* Fixo no topo da tela */
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            z-index: 2; /* Garante que o botão esteja acima de outros elementos */
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Efeito de hover no botão de alternância */
+        .mode-toggle:hover {
+            background-color: #555;
+            transform: scale(1.1);
+        }
+
+    </style>
+</head>
+<body class="light-mode">
+
+    <button class="mode-toggle" onclick="toggleMode()">🌙</button>
+
+    <video class="video-bg" autoplay muted loop>
+        <source src="{{ url_for('static', filename='videos/capainicial.mp4') }}" type="video/mp4">
+        O seu navegador não suporta a reprodução de vídeo.
+    </video>
+
+    <div class="container">
+        <h1>Da Agricultura à Engenharia</h1>
+        <div class="subtitle">Análise estatística da produção agrícola</div>
+        <div class="buttons">
+            <div class="buttons">
+            <button class="button" onclick="window.location.href='/index2'">
+                📊 Análise Estatística
+            </button>
+            <button class="button" onclick="window.location.href='/pagina2API'">
+                ❓ Perguntas
+            </button>
+            <button class="button" onclick="window.location.href='/predict_page'">
+                🌱 Previsão de Rendimento
+            </button>
+            <button class="button" onclick="window.location.href='/fertilizante_page'">
+                🌱 Modelo de Classificação
+            </button>
+            <button class="button" onclick="window.location.href='http://localhost:8501'">📈 Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleMode() {
+            var body = document.body;
+            var modeToggleButton = document.querySelector('.mode-toggle');
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                modeToggleButton.textContent = '🌞';
+                modeToggleButton.style.backgroundColor = '#e4a800'; // Amarelo no modo escuro
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                modeToggleButton.textContent = '🌙';
+                modeToggleButton.style.backgroundColor = '#333'; // Cor original do botão
+            }
+        }
+    </script>
+
+</body>
+</html>
